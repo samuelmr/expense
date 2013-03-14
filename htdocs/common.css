@@ -1,0 +1,289 @@
+* {
+ font-family: Helvetica,Arial,Verdana,sans-serif;
+}
+
+a {
+ text-decoration: underline;
+}
+
+body {
+ background-color: #FFF;
+ color: #000;
+ font-size: 90%;
+ margin: 0em;
+ padding: 0.5em 1.5em;
+}
+
+div.error, div.warning, div.notice {
+ border-radius: 0.6em;
+}
+
+div#pie {
+ float: left;
+ margin: 0em 1em;
+ overflow: hidden;
+ padding: 0em;
+ position: relative;
+}
+
+div#pie svg {
+ display: block;
+ overflow: hidden;
+ padding: 0em;
+ height: 13em;
+ width: 40em;
+}
+
+#piesvg {
+ overflow: hidden;
+}
+
+div#pie title {
+ display: block;
+ font-size: 120%;
+ font-weight: bold;
+}
+
+div#pie style {
+ display: none;
+}
+
+div#pie g title {
+ display: none;
+}
+
+div#pie g text {
+ display: block;
+ font-size: 67%;
+ line-height: 1.1;
+}
+
+div#pie, table#timeline {
+ margin: 15px 0em;
+ padding: 0em;
+ overflow: auto;
+}
+
+form {
+ margin: 0em auto 0em 0em;
+}
+
+fieldset {
+ border-color: #CCC;
+ border-radius: 0.6em;
+ border-style: solid;
+ border-width: 0.1em;
+ margin: 0em auto 0.5em 0em;
+ padding: 0em 0.5em;
+ vertical-align: middle;
+}
+
+#formfs #selectfs {
+ border-radius: 0em;
+ border-width: 0em;
+ margin: 0em auto 0.5em 0em;
+ padding: 0em;
+}
+
+#formfs #viewfs, #formfs #submitfs, #linksfs {
+ border-radius: 0em;
+ border-width: 0em;
+ display: inline;
+ padding: 0em;
+}
+
+#formfs #searchfs, #formfs #datefs {
+ border-color: #CCC;
+ border-radius: 0em;
+ border-width: 0em 0em 0em 0em;
+ display: inline;
+ margin: 0em;
+ padding: 0em;
+}
+
+#datefs {
+ border-width: 0em 0em 0em 0.2em;
+ padding: 0em 0.5em;
+}
+
+#insertfs {
+ border-width: 0.2em;
+}
+
+#insertfs fieldset {
+ border-width: 0em;
+}
+
+form.insert #insertfs {
+ border-color: #093;
+}
+
+form.modify #insertfs {
+ border-color: #C03;
+}
+
+#submitfs input {
+ margin: 0.2em 0em 0em 0.5em;
+}
+
+h1 {
+ font-size: 360%;
+ font-weight: bold;
+ margin: 0.5em 0em 0em 0em;
+}
+
+h1 a:link, h1 a:visited, h1 a:active, h1 a:hover, h1 a:focus {
+ background-color: transparent;
+ color: #333;
+ text-decoration: none;
+}
+
+html {
+ background-color: #FFF;
+ color: #000;
+}
+
+img.timeline {
+ border-width: 0em;
+ margin: 0em;
+ padding: 0em;
+}
+
+label {
+ margin: 0em 0.25em;
+}
+
+label.header {
+ display: block;
+ margin: 0em;
+}
+
+/*
+object {
+ float: left;
+}
+*/
+
+table {
+ border-collapse: collapse;
+ margin: 0em 0.5em;
+}
+
+/*
+table#details thead tr, table#details tbody tr, table#details tfoot tr {
+ border-color: #EEE;
+ border-style: solid;
+ border-width: 0em 0.1em 0em 0em;
+}
+*/
+
+#benchmarkhistory {
+ display: none;
+}
+
+table#summary tbody tr td, table#details tbody tr td, table#summary tfoot tr td, table#details tfoot tr td {
+ border-color: #EEE;
+ border-style: solid;
+ border-width: 0em 0em 0.1em 0.1em;
+ padding: 0em 0.2em;
+}
+
+table#details thead tr th.desc, table#details tbody tr td.desc, table#details tfoot tr th.desc{
+ border-color: #EEE;
+ border-style: solid;
+ border-width: 0em 0.1em 0.1em 0.1em;
+}
+
+table#summary tbody tr td.img {
+ border-color: #FFF;
+}
+
+table#timeline {
+ background-color: #FFF;
+ color: #000;
+ float: left;
+ vertical-align: bottom;
+}
+
+table#timeline tbody tr td {
+ border-width: 0em;
+ vertical-align: bottom;
+ width: 6px;
+}
+
+table#timeline tbody tr td a {
+/*
+ display: block;
+ height: 100%;
+*/
+ vertical-align: bottom;
+}
+
+table#timeline tbody tr td a img {
+ display: block;
+ vertical-align: bottom;
+}
+
+td {
+ font-size: 80%;
+}
+
+table#timeline tbody tr td {
+ font-family: "Courier New",Courier,monospace;
+ font-size: 80%;
+ vertical-align: bottom;
+}
+
+td.cost, td.month, td.perc, td.year {
+ text-align: right;
+}
+
+td.cost, td.prod, td.total {
+ font-weight: bold;
+}
+
+td.perc {
+ background-color: #FFF;
+ color: #333;
+}
+
+.edit img {
+ border-width: 0;
+ margin: 0;
+ padding: 0;
+}
+
+th {
+ background-color: #666;
+ border-color: #CCC;
+ border-style: solid;
+ border-width: 0em 0em 0.1em 0.1em;
+ color: #FFF;
+ padding: 0.1em;
+}
+
+th a, th a:link, th a:visited, th a:active, th a:hover {
+ background-color: transparent;
+ color: #FFF;
+ text-decoration: none;
+ white-space: nowrap;
+}
+
+th.type, th.desc {
+ text-align: left;
+ padding-left: 0.5em;
+}
+
+table#details thead tr th a img, table#summary thead tr th a img {
+ border-width: 0em;
+ margin: 0em 0em 0em 0.5em;
+}
+
+table#summary tbody tr td a img {
+ border-width: 0em;
+}
+
+tr.total td {
+ background-color: #EEE;
+ color: #000;
+}

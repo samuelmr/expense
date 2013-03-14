@@ -1,0 +1,316 @@
+a:link {
+  background-color: transparent;
+  color: #309;
+  text-decoration: none;
+}
+
+a:visited {
+  background-color: transparent;
+  color: #900;
+  text-decoration: none;
+}
+
+a:focus {
+  background-color: #CCC;
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover {
+  background-color: transparent;
+  color: #000;
+  text-decoration: underline;
+}
+
+a:active {
+  background-color: transparent;
+  color: #666;
+  text-decoration: none;
+}
+
+div#pie g text {
+  border-color: #FFF;
+  border-style: dashed;
+  border-width: 0.1em;
+}
+
+div#pie g text:hover {
+  border-color: #CCC;
+}
+
+h1 {
+  text-shadow: #999 0.05em 0.025em 0.05em;
+}
+
+input {
+  font-size: 110%; 
+}
+
+optgroup, option {
+  font-size: 100%; 
+}
+
+optgroup {
+  font-style: normal;
+}
+
+#form, div.notice, div.warning, div.error {
+  max-width: 61em;
+}
+
+table#summary tbody tr:hover td, table#details tbody tr:hover td, table#history tbody tr:hover td, table#benchmarkhistory tbody tr:hover td {
+  background-color: #EEE;
+  /* border-color: #000; */
+  color: #333;
+}
+
+/*
+table#summary tbody tr td a:hover img {
+  content: url('/i/.gif');
+}
+*/
+
+table#history tbody tr td, table#benchmarkhistory tbody tr td {
+  padding: 0em 0.5em 0em 0em;
+  width: 4.5em;
+}
+
+table#timeline {
+  display: block;
+  max-width: 100%;
+  overflow: auto;
+}
+
+div#plot {
+  height: 20em;
+  width: 100%;
+}
+
+table#timeline tbody tr td {
+/*
+  border-color: #FFF;
+  border-style: dashed;
+  border-width: 0.1em;
+*/
+}
+
+table#timeline tbody tr td:hover {
+  background-color: #EEE;
+/*
+  border-color: #CCC;
+*/
+  color: #333;
+}
+
+td.hilite {
+  background-color: #EEE;
+  color: #333;
+}
+
+table#history th:hover, table#benchmarkhistory th:hover, th.hilite {
+  background-color: #CCC;
+  border-color: #666;
+  border-style: solid;
+  color: #333;
+}
+
+table#details tr td.desc {
+/*
+  white-space: nowrap;
+*/
+}
+
+#details tr td {
+ min-height: 20px;
+}
+
+table#details tr:hover td.desc {
+  white-space: normal;
+}
+
+#benchmarkimages {
+  max-width: 800px;
+}
+
+#benchmarkimages h2 {
+  background-color: #666;
+  border-color: #CCC;
+  border-style: solid;
+  border-width: 0em 0em 0.1em 0.1em;
+  color: #FFF;
+  font-size: 1em;
+  margin: 0em 0.5em;
+  padding: 0.1em 1em;
+}
+
+#benchmarkimages h3 {
+  text-align: center;
+}
+
+#benchmarkimages h4 {
+  font-size: small;
+  font-weight: normal;
+  margin: 1em auto 0em auto;
+  padding: 0em;
+  text-align: center;
+}
+
+#benchmarkimages p, #benchmarkimages img {
+  margin: 0px auto;
+  text-align: center;
+}
+
+img.bmark {
+ border-width: 0px;
+}
+
+.minus, .minus a {
+  background-color: transparent;
+  color: #090;
+}
+
+.plus, .plus a {
+  background-color: transparent;
+  color: #900;
+  font-weight: bold;
+}
+
+.miss, .miss a {
+  background-color: transparent;
+  color: #666;
+}
+
+td.desc span.edit {
+  display: none;
+}
+/*
+table:hover th.edit {
+  display: table-cell;
+}
+*/
+tr:hover td.desc span.edit {
+ display: block;
+ float: right;
+ height: 13px;
+ margin: 0;
+ padding: 0;
+ width: 40px;
+}
+ul#tabs {
+  clear: both;
+  display: block;
+  margin: 0.5em 0em 0em 2em;
+  padding: 0em;
+  width: 40em;
+}
+
+ul#tabs li {
+  float: left;
+  list-style-type: none;
+  margin: 0em 0em 0em -1em;
+  padding: 0em;
+  position: relative;
+  width: 24%;
+}
+#summarylink {
+  z-index: 6;
+}
+#detailslink {
+  z-index: 5;
+}
+#plotlink {
+  z-index: 4;
+}
+#benchmarklink {
+  z-index: 3;
+}
+ul#tabs li.active {
+  z-index: 10;
+}
+
+ul#tabs li a {
+  background-color: #FFF;
+  border-color: #CCC;
+  border-radius: 0.6em 0.6em 0em 0em;
+  border-style: outset;
+  border-width: 2px 2px 0px 2px;
+  color: #333;
+  display: block;
+  margin: 0em;
+  padding: 0.2em 0em 0em 0em;
+  text-align: center;
+  width: 100%;
+}
+
+ul#tabs li a:hover, ul#tabs li.active a {
+  background-color: #666;
+  border-color: #666;
+  color: #FFF;
+  text-decoration: none;
+}
+
+ul#links {
+  display: block;
+  float: left;
+  margin: 0.5em 0em 0em 0em;
+  padding: 0em;
+  width: 16em;
+}
+
+ul#links li {
+  float: left;
+  list-style-type: none;
+  margin: 0em;
+  padding: 0em;
+  text-align: center;
+  width: 45%;
+}
+
+ul#links li a {
+  background-color: #FFF;
+  border-color: #666;
+  border-style: outset;
+  border-width: 0px;
+  color: #33C;
+  display: block;
+  margin: -0.2em 0em 0em 0em;
+  padding: 0.2em 0em;
+  text-align: center;
+  text-decoration: underline;
+}
+
+ul#links li a:active, ul#tabs li a:active {
+  border-style: inset;
+}
+
+#content {
+  clear: both;
+  margin: 0em;
+  padding: 0em;
+}
+
+@media (min-device-height: 320px) {
+ #plot {
+  min-height: 320px;
+ }
+}
+@media (min-device-height: 480px) {
+ #plot {
+  min-height: 480px;
+ }
+}
+@media (min-device-height: 600px) {
+ #plot {
+  min-height: 600px;
+ }
+}
+@media (min-device-height: 800px) {
+ #plot {
+  min-height: 800px;
+ }
+}
+@media (min-device-height: 1080px) {
+ #plot {
+  min-height: 1080px;
+ }
+}
