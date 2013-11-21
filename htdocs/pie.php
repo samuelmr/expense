@@ -237,7 +237,10 @@ EOS;
       if (!$embed && !$inline && !$image) {
         // object must have content (WAI)
         echo "    $locale[pie]\n";
-        echo "    <a href=\"$svgplugin\">$svgplugin</a>\n";
+        echo "    <p class=\"warning\">".
+             htmlspecialchars($locale['svg_required']).
+             "</p>\n";
+        echo "    <p><a href=\"$svgplugin\">$svgplugin</a></p>\n";
       }
       echo "   </object>\n";
     }

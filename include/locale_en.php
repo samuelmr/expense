@@ -23,6 +23,8 @@
   $LOCALE['owntot'] = 'own consumption';
   $LOCALE['avgtot'] = 'reference consumption';
   $LOCALE['missing'] = 'no values for %s';
+  $LOCALE['flash_required'] = 'Flash support required.';
+  $LOCALE['svg_required'] = 'SVG support required.';
   $LOCALE['date'] = 'Date';
   $LOCALE['cost'] = 'Cost';
   $LOCALE['perc'] = 'Percents';

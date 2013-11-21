@@ -636,13 +636,13 @@ EO2;
       $plusminus = 'miss';
     }
     $cattrs = $attrs;
-    $cattrs['bmto'] = NULL;
+    unset($cattrs['bmto']);
     echo "  <div id=\"benchmarkimages\">\n";
     echo "   <h2>".htmlentities($bmname)."</h2>\n";
     if ($targets) {
       echo "   <form method=\"get\" action=\"./\">\n";
       echo "    <fieldset id=\"bmtarget\">\n";
-      echo "     ".attrs2form($attrs, 'bmform')."\n";
+      echo "     ".attrs2form($cattrs, 'bmform')."\n";
       echo "     <label for=\"bmto\">".htmlentities($LOCALE['benchmark_title']).
            "</label>\n";
       echo "     <select name=\"bmto\" id=\"bmto\">\n";
@@ -692,7 +692,7 @@ EO2;
       # $diffprc = ($totb ? (sprintf('%d', 100*($tota - $totb)/$totb)) : '0.00');
       $diffprc = ($totb ? (sprintf('%d', 100*$tota/$totb)) : '0.00');
       $plusminus = ($diff < 0) ? '009900' : '990000';
-      if (($atot == 0) || ($btot == 0)) {
+      if (($tota == 0) || ($totb == 0)) {
         $plusminus = '666666';
       }
       # $tota = str_replace('.', ',', $tota);
@@ -744,6 +744,116 @@ EO2;
     echo "  </div>\n";
   }
 
+  function benchmarktable(&$e, &$b, &$cc, &$query, $id) {
+    $LOCALE = $GLOBALS['LOCALE'];
+    $CONFIG = $GLOBALS['CONFIG'];
+
+    $bmconf = $b->getConfig();
+    $bmname = $bmconf['title'];
+
+    $total_perc = 0;
+    // copy; may be modified
+    $attrs = $query;
+    $span = date('j.n.Y', $attrs['from'])." - ".date('j.n.Y', $attrs['to']);
+    # $urlattrs = attrs2url($attrs);
+    $total = $e->getTotal($attrs);
+    $battrs = $attrs;
+    $battrs['prod'] = '';
+    $bmark = $b->getTotal($battrs);
+    $diff = $total - $bmark;
+    $plusminus = ($diff < 0) ? 'minus' : 'plus';
+    if (($total == 0) || ($bmark == 0)) {
+      $plusminus = 'miss';
+    }
+    $cattrs = $attrs;
+    unset($cattrs['bmto']);
+    $cats = $cc->getCats();
+    $w = 640;
+    $h = 27;
+    $bh = "10,2,4";
+    $max = sprintf('%0.2f', (($bmark > $total) ? $bmark : $total));
+    $u = (($max != 0) ? (100/$max) : 0);
+    $attrs = $query;
+    $LOCALE['diff'] = 'Ero';
+    $attrs['view'] = 'details';
+    echo "  <table class=\"benchmark\" id=\"table$id\">\n";
+    echo "   <caption>".htmlentities($bmname)."</caption>\n";
+    echo "   <tr><th>".htmlentities($LOCALE['cat'])."</th><th>".
+         htmlentities(ucfirst($LOCALE['owntot']))."</th><th>".htmlentities(ucfirst($LOCALE['avgtot']))."</th><th>".htmlentities(ucfirst($LOCALE['diff']))."</th></tr>\n";
+    $endrow = "   <tr class=\"total\"><th>".htmlentities(ucfirst($LOCALE['total']))."</th><td>".
+              str_replace('.', ',', sprintf('%.2f', $total)).
+              "</td><td>".
+              str_replace('.', ',', sprintf('%.2f', $bmark)).
+              "</td><td class=\"$plusminus\">".
+              str_replace('.', ',', sprintf('%.2f', $diff)).
+              "</td></tr>\n";
+    while (list($catid, $cat) = each($cats)) {
+      $attrs['type'] = $cat->id;
+      $tota = $e->getTotal($attrs);
+      $battrs = $attrs;
+      $battrs['prod'] = '';
+      $totb = $b->getTotal($battrs);
+      $diff = sprintf('%0.2f', $tota - $totb);
+      # $diffprc = ($totb ? (sprintf('%d', 100*($tota - $totb)/$totb)) : '0.00');
+      $diffprc = ($totb ? (sprintf('%d', 100*$tota/$totb)) : '0.00');
+      $plusminus = ($diff < 0) ? 'minus' : 'plus';
+      if ((($tota == 0) && ($totb == 0)) || ($tota == $totb)) {
+        $plusminus = 'even';
+      }
+      # $tota = str_replace('.', ',', $tota);
+      # $totb = str_replace('.', ',', $totb);
+      # $diff = str_replace('.', ',', $diff);
+      $catn = $cc->getCatName($cat->id, $attrs['lang']);
+      # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
+      $color = str_replace('#', '', $cat->color);
+      $sa = sprintf('%0.2f', $u * $tota);
+      $sb = sprintf('%0.2f', $u * $totb);
+      $tota = sprintf('%0.2f', $tota);
+      $totb = sprintf('%0.2f', $totb);
+      $la = urlencode($LOCALE['owntot'].": $tota ")."%E2%82%AC".
+            urlencode(" ($diffprc %)");
+      $lb = urlencode($LOCALE['avgtot']).":%20$totb%20%E2%82%AC";
+      $lm = round($max);
+      $oleg = str_pad(urlencode($LOCALE['owntot'].": $tota ")."%E2%82%AC".
+                      " ($diffprc%20%25)", 45, '+', STR_PAD_RIGHT).".";
+      $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
+      $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
+      $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
+      $imgsrc = "http://chart.apis.google.com/chart?chs=${w}x${h}".
+                "&amp;cht=bhg".
+                "&amp;chbh=$bh".
+                "&amp;chco=000099,666666&amp;chts=000000,10".
+                "&amp;chf=c,lg,0,$color,1,FFFFFF,0.5|bg,s,FFFFFF".
+                // axis label korvattu chm:lla
+                # "&amp;chxt=x,x".
+                # "&amp;chxs=1,000099,9,$apad|2,666666,9,$bpad".
+                # "&amp;chxr=0,0,$max|1,0,$max".
+                # "&amp;chxp=0,$tota|1,$totb|2,0".
+                # "&amp;chxl=0:|$la|1:|$lb|2:|$diffprc%20%25".
+                // title erikseen tekstina
+                # "&amp;chtt=".urlencode($catn).
+                "&amp;chm=t+$la,000099,0,1,9,0|t+$lb,333333,1,1,9,0".
+                # "&amp;chdl=$oleg|$aleg".
+                // bugi chartsissa: chm ei toimi, jos kummassakin joukossa
+                // on vain yksi datapoint
+                # "&amp;chd=t:0,$sa|0,$sb".
+                "&amp;chd=t:$sa|$sb".
+                "";
+      $urlattrs = attrs2url($attrs);
+/*
+      echo "   <h4><a href=\"./?$urlattrs\">".htmlentities($catn)."</a></h4>\n".
+           "   <p title=\"$tota - $totb = $diff\"><a href=\"./?$urlattrs\">".
+           "<img src=\"$imgsrc\" class=\"bmark\" width=\"$w\" height=\"$h\"".
+           " alt=\"$LOCALE[owntot]: $tota, $LOCALE[avgtot]: $totb\" /></a>".
+           "</p>\n";
+*/
+      $catid = str_replace('.', '-', $cat->id);
+      echo "   <tr><th class=\"cat$catid\">".htmlentities($catn)."</th><td>$tota</td><td>$totb</td><td class=\"$plusminus\">$diff</td></tr>\n";
+    }
+    echo $endrow;
+    echo "  </table>\n";
+  }
+
   function plot($e, $cc, $query) {
     $LOCALE = $GLOBALS['LOCALE'];
     $CONFIG = $GLOBALS['CONFIG'];
@@ -755,6 +865,7 @@ EO2;
     $columns = array();
     echo <<<EOH
   <div id="plot">
+   <p class="warning">$LOCALE[flash_required]</p>
   </div>
   <script type="text/javascript">// <![CDATA[
    function initPlot() {
@@ -810,9 +921,9 @@ EOH;
       $y = date('Y', $i);
       $m = date('n', $i)-1;
       # $d = date('j', $i);
-      $d = 15;
+      $d = 1;
       $i = mktime(0, 0, 0, date('m', $i)+1, date('d', $i), date('Y', $i));
-      $attrs['to'] = $i;
+      $attrs['to'] = $i-1;
       $attrs['group'] = $level;
       $prods = $e->getSummary($attrs);
       # $tot = $e->getTotal($attrs);
@@ -834,7 +945,9 @@ EOH;
         # echo "    data.setValue($count, $cat, $cost);\n";
         $tmpdata[$type] = array($count, $cat, $cost);
       }
-      $values = "    data.addRow([new Date($y, $m, $d)";
+      // $m == 1: february; middle of the month is 14th
+      $midday = ($m == 1) ? 14 : 15;
+      $values = "    data.addRow([new Date($y, $m, $midday)";
       reset($columns);
       while (list($id, $data) = each($columns)) {
         $values .= sprintf(", %.2f", $tmpdata[$id][2]);
@@ -1237,6 +1350,7 @@ EOL;
     }
     return <<<EOS
   <script type="text/javascript">
+   var chart;
    var ss = document.getElementById('screenstyle');
    var st = document.createElement('style');
    st.type = 'text/css';

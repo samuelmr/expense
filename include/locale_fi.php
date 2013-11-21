@@ -23,6 +23,8 @@
   $LOCALE['owntot'] = 'oma kulutus';
   $LOCALE['avgtot'] = 'vertailukulutus';
   $LOCALE['missing'] = '%s puuttuu';
+  $LOCALE['flash_required'] = 'Näyttämiseen tarvitaan Flash-tuki.';
+  $LOCALE['svg_required'] = 'Näyttämiseen tarvitaan SVG-tuki.';
   $LOCALE['date'] = 'Päivä';
   $LOCALE['cost'] = 'Hinta';
   $LOCALE['perc'] = 'Osuus';
