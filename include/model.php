@@ -26,7 +26,7 @@
       $where[] = "date <= '".date('Y-m-d', $array['to'])."'";
     }
     if (isset($conf['force_query']) && $conf['force_query']) {
-      $where[] = "(prod LIKE '%".db_escape_string($CONFIG['force_query'])."%')";
+      $where[] = "(prod LIKE '%".db_escape_string($conf['force_query'])."%')";
     }
     if (isset($array['prod']) && $array['prod']) {
       $items = explode($conf['qsepr'], db_escape_string($array['prod']));
