@@ -217,6 +217,9 @@
    }
    $type = $csv[0];
    $desc = $csv[1];
+   if (!$desc || !$type) {
+    continue;
+   }
 
    $key = 1;
    foreach ($areas as $a) {
