@@ -247,9 +247,18 @@
   function tdHighlight(t, td) {
     var ids = new String(td.getAttribute('headers')).split(' ');
     var i;
+    var thisYear, thisMonth;
     for (i=0; i<ids.length; i++) {
       var th = document.getElementById(ids[i]);
       th.className += ' hilite';
+      if (chart) {
+        if (ids[i].slice(0, 1) == 'y') {
+          thisYear = ids[i].slice(1);
+	}
+        else if ((ids[i].slice(0, 1) == 'm') || (ids[i] == 'total')) {
+          thisMonth = ids[i].slice(1);
+	}
+      }
     }
     var tds = t.getElementsByTagName('td');
     for (i=0; i<tds.length; i++) {
@@ -258,6 +267,26 @@
       if (inArray(headers, ids[1]) >= 0) {
         tds[i].className += ' hilite';
       }
+    }
+    if (chart && thisYear && thisMonth) {
+      var startMonth, endMonth;
+	var endYear = new Number(thisYear);
+      if (thisMonth == 'otal') {
+        startMonth = 0;
+	endMonth = 0;
+        endYear += 1;
+      }
+      else {
+        startMonth = thisMonth - 1;
+        endMonth = thisMonth;
+      }
+      while (endMonth > 11) {
+        endYear += 1;
+        endMonth -= 12;
+      }
+      var startDate = new Date(thisYear, startMonth, 1, 0, 0, 0);
+      var endDate = new Date(endYear, endMonth, 1, 0, 0, 0);
+      chart.setVisibleChartRange(startDate, endDate);
     }
   }
 
@@ -444,7 +473,8 @@
     replaceSelectList(SELECTLISTID);
     var links = document.getElementsByTagName('a');
     for (i=0; i<links.length; i++) {
-      if (links[i].className && links[i].className.indexOf('modify') >= 0) {
+      if (links[i].className && links[i].className.indexOf && 
+          links[i].className.indexOf('modify') >= 0) {
         links[i].onclick = insertWindowOpen;
       }
     }
