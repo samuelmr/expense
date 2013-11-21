@@ -90,7 +90,8 @@
       $lang = $lang ? $lang : $conf['lang'];
       $conf['timeline_width'] = 6;
       $conf['timeline_height'] = 168;
-      $conf['pie_w'] = ($lang == 'fi') ? 585 : 700;
+      # $conf['pie_w'] = ($lang == 'fi') ? 585 : 700;
+      $conf['pie_w'] = 800;
       $conf['pie_h'] = 200;
       $conf['plot_w'] = 700;
       $conf['plot_h'] = 200;
