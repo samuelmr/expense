@@ -28,16 +28,6 @@
 
 EOS;
 
-  $headers = <<<EOH
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <!-- link rel="microsummary" type="application/x.microsummary+xml" href="./ms.xml" / -->
-  <link rel="stylesheet" type="text/css" href="errors.css" />
-  <link rel="stylesheet" type="text/css" href="common.css" />
-  <link rel="stylesheet" media="screen" type="text/css" href="screen.css" id="screenstyle" />
-  <link rel="stylesheet" media="print" type="text/css" href="print.css" title="Print style" />
-  <link rel="stylesheet" media="handheld" type="text/css" href="handheld.css" title="Mobile style" />
-EOH;
-
   $QUERY = getQuery($_REQUEST);
   $views = array('summary' => 'summary', 'details' => 'details',
                  'benchmarkimages' => 'benchmark', 'plot' => 'plot');
@@ -60,6 +50,26 @@ EOH;
   if ($CONFIG['read_only']) {
     $QUERY['nolinks'] = TRUE;
   }
+
+  $headers = <<<EOH
+  <meta name="viewport" content="width=device-width" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="width" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <!-- link rel="microsummary" type="application/x.microsummary+xml" href="./ms.xml" / -->
+  <link rel="stylesheet" type="text/css" href="errors.css" />
+  <link rel="stylesheet" type="text/css" href="common.css" />
+  <link rel="stylesheet" media="screen" type="text/css" href="screen.css" id="screenstyle" />
+  <link rel="stylesheet" media="print" type="text/css" href="print.css" title="Print style" />
+  <link rel="stylesheet" media="handheld" type="text/css" href="handheld.css" title="Mobile style" />
+  <style type="text/css">
+   #piesvg {
+    width: $CONFIG[pie_w]px;
+    height: $CONFIG[pie_h]px;
+   }
+  </style>
+EOH;
 
   $cc = new Coicop;
   $e = new Expense($_SESSION['userid']);
@@ -250,6 +260,11 @@ EOS;
       $query['lang'] = $QUERY['lang'];
       $query['view'] = $QUERY['view'];
       benchmark($e, $b, $cc, $query, $bmtargets);
+      # benchmarktable($e, $b, $cc, $query, $QUERY['bmto']);
+      # foreach ($bmtargets as $targ) {
+      #  $b = new Expense($targ['id']);
+      #  benchmarktable($e, $b, $cc, $query, $targ['id']);
+      # }
       $query = $QUERY;
       plot($e, $cc, $query);
       echo "  </div>\n";
