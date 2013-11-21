@@ -10,8 +10,8 @@ body {
  background-color: #FFF;
  color: #000;
  font-size: 90%;
- margin: 0em;
- padding: 0.5em 1.5em;
+ margin: 0;
+ padding: 0.5em 0.5em;
 }
 
 div.error, div.warning, div.notice {
@@ -20,18 +20,20 @@ div.error, div.warning, div.notice {
 
 div#pie {
  float: left;
- margin: 0em 1em;
+ margin: 0 1em;
  overflow: hidden;
- padding: 0em;
+ padding: 0;
  position: relative;
 }
 
 div#pie svg {
  display: block;
  overflow: hidden;
- padding: 0em;
+ padding: 0;
+/*
  height: 13em;
  width: 40em;
+*/
 }
 
 #piesvg {
@@ -59,13 +61,13 @@ div#pie g text {
 }
 
 div#pie, table#timeline {
- margin: 15px 0em;
- padding: 0em;
+ margin: 15px 0;
+ padding: 0;
  overflow: auto;
 }
 
 form {
- margin: 0em auto 0em 0em;
+ margin: 0 auto 0 0;
 }
 
 fieldset {
@@ -73,37 +75,37 @@ fieldset {
  border-radius: 0.6em;
  border-style: solid;
  border-width: 0.1em;
- margin: 0em auto 0.5em 0em;
- padding: 0em 0.5em;
+ margin: 0 auto 0.5em 0;
+ padding: 0 0.5em;
  vertical-align: middle;
 }
 
 #formfs #selectfs {
- border-radius: 0em;
- border-width: 0em;
- margin: 0em auto 0.5em 0em;
- padding: 0em;
+ border-radius: 0;
+ border-width: 0;
+ margin: 0 auto 0.5em 0;
+ padding: 0;
 }
 
 #formfs #viewfs, #formfs #submitfs, #linksfs {
- border-radius: 0em;
- border-width: 0em;
+ border-radius: 0;
+ border-width: 0;
  display: inline;
- padding: 0em;
+ padding: 0;
 }
 
 #formfs #searchfs, #formfs #datefs {
  border-color: #CCC;
- border-radius: 0em;
- border-width: 0em 0em 0em 0em;
+ border-radius: 0;
+ border-width: 0 0 0 0;
  display: inline;
- margin: 0em;
- padding: 0em;
+ margin: 0;
+ padding: 0;
 }
 
 #datefs {
- border-width: 0em 0em 0em 0.2em;
- padding: 0em 0.5em;
+ border-width: 0 0 0 0.2em;
+ padding: 0 0.5em;
 }
 
 #insertfs {
@@ -111,7 +113,7 @@ fieldset {
 }
 
 #insertfs fieldset {
- border-width: 0em;
+ border-width: 0;
 }
 
 form.insert #insertfs {
@@ -123,13 +125,13 @@ form.modify #insertfs {
 }
 
 #submitfs input {
- margin: 0.2em 0em 0em 0.5em;
+ margin: 0.2em 0 0 0.5em;
 }
 
 h1 {
  font-size: 360%;
  font-weight: bold;
- margin: 0.5em 0em 0em 0em;
+ margin: 0.5em 0 0 0;
 }
 
 h1 a:link, h1 a:visited, h1 a:active, h1 a:hover, h1 a:focus {
@@ -144,18 +146,18 @@ html {
 }
 
 img.timeline {
- border-width: 0em;
- margin: 0em;
- padding: 0em;
+ border-width: 0;
+ margin: 0;
+ padding: 0;
 }
 
 label {
- margin: 0em 0.25em;
+ margin: 0 0.25em;
 }
 
 label.header {
  display: block;
- margin: 0em;
+ margin: 0;
 }
 
 /*
@@ -166,14 +168,16 @@ object {
 
 table {
  border-collapse: collapse;
- margin: 0em 0.5em;
+ margin: 0 0.5em;
 }
-
+table#benchmarkhistory {
+ margin: 0;
+}
 /*
 table#details thead tr, table#details tbody tr, table#details tfoot tr {
  border-color: #EEE;
  border-style: solid;
- border-width: 0em 0.1em 0em 0em;
+ border-width: 0 0.1em 0 0;
 }
 */
 
@@ -184,14 +188,14 @@ table#details thead tr, table#details tbody tr, table#details tfoot tr {
 table#summary tbody tr td, table#details tbody tr td, table#summary tfoot tr td, table#details tfoot tr td {
  border-color: #EEE;
  border-style: solid;
- border-width: 0em 0em 0.1em 0.1em;
- padding: 0em 0.2em;
+ border-width: 0 0 0.1em 0.1em;
+ padding: 0 0.2em;
 }
 
 table#details thead tr th.desc, table#details tbody tr td.desc, table#details tfoot tr th.desc{
  border-color: #EEE;
  border-style: solid;
- border-width: 0em 0.1em 0.1em 0.1em;
+ border-width: 0 0.1em 0.1em 0.1em;
 }
 
 table#summary tbody tr td.img {
@@ -206,7 +210,7 @@ table#timeline {
 }
 
 table#timeline tbody tr td {
- border-width: 0em;
+ border-width: 0;
  vertical-align: bottom;
  width: 6px;
 }
@@ -257,7 +261,7 @@ th {
  background-color: #666;
  border-color: #CCC;
  border-style: solid;
- border-width: 0em 0em 0.1em 0.1em;
+ border-width: 0 0 0.1em 0.1em;
  color: #FFF;
  padding: 0.1em;
 }
@@ -275,12 +279,12 @@ th.type, th.desc {
 }
 
 table#details thead tr th a img, table#summary thead tr th a img {
- border-width: 0em;
- margin: 0em 0em 0em 0.5em;
+ border-width: 0;
+ margin: 0 0.5em;
 }
 
 table#summary tbody tr td a img {
- border-width: 0em;
+ border-width: 0;
 }
 
 tr.total td {
