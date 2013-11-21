@@ -58,7 +58,7 @@
                       '12.9' => array('min' => 0.5, 'max' => 1200, '*' => 2));
 
   $totals = array();
-  $stat_userid = 80;
+  $stat_userid = 121;
   $stat = new Expense($stat_userid);
   $statquery = Array();
   $statquery['from'] = $start_time;
