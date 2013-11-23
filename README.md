@@ -16,10 +16,12 @@ configuration somethin like:
 	</VirtualHost>
 
 And into your php.ini:
+
 	 include_path = ".:../include"
 
 #### Method #2: home directory and symlinks####
 You can keep the code where you like, e.g.
+
 	cd /home/me
 	git clone https://github.com/samuelmr/expense.git
 	cd /var/www
