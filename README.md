@@ -1,12 +1,19 @@
 #Expense#
 
+You can see (and use) a running installation at
+http://kulutus.seuranta.org/
+
 ##Installation##
 
 ###Files###
 ####Method #1: virtual server####
 The suggested installation method is to install everything into a virtual
-server folder (e.g. /www/expense). Then you could add to your Apache
-configuration somethin like:
+server folder (e.g. /www/expense).
+
+	cd /www
+	git clone https://github.com/samuelmr/expense.git
+
+Then you could add to your Apache configuration something like:
 
 	<VirtualHost *:80>
 	 ServerAdmin me@example.com
@@ -28,7 +35,9 @@ You can keep the code where you like, e.g.
 	ln -s /home/me/expense/htdocs expense
 	ln -s /home/me/expense/include expense/include
 
-###Create databases###
+###Create database tables###
+You should create a new database for Expense. There will be more tables
+created dynamically, later.
 
 	mysql -u username -p database < sql/expense2_config.sql
 	mysql -u username -p database < sql/user_auth.sql
@@ -53,5 +62,7 @@ your environment):
 	30 3 * * * /usr/bin/php /www/expense/scripts/reset-demo.php
 	
 	# stat.fi updates price index information 15th of every month,
-	# update reference tables
-	30 9 15 * * /usr/bin/php /www/expense/scripts/create-references.php
+	# update reference tables sometime in the morning
+	45 10 15 * * /usr/bin/php /www/expense/scripts/create-references.php
+
+###That's it###
