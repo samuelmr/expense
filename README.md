@@ -31,7 +31,7 @@ You can keep the code where you like, e.g.
 
 	cd
 	git clone https://github.com/samuelmr/expense.git
-	cd /var/www
+	cd /var/www/htocs
 	ln -s /home/`whoami`/expense/htdocs expense
 	ln -s /home/`whoami`/expense/include expense/include
 
