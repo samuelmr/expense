@@ -39,8 +39,9 @@ You can keep the code where you like, e.g.
 You should create a new database for Expense. There will be more tables
 created dynamically, later.
 
-	mysql -u username -p database < sql/expense2_config.sql
 	mysql -u username -p database < sql/user_auth.sql
+	mysql -u username -p database < sql/expense2_demo.sql
+	mysql -u username -p database < sql/expense2_config.sql
 
 ###Create configuration file and set your database credentials###
 
