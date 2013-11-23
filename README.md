@@ -20,16 +20,16 @@ And into your php.ini:
 
 #### Method #2: home directory and symlinks####
 You can keep the code where you like, e.g.
- cd /home/me
- git clone https://github.com/samuelmr/expense.git
- cd /var/www
- ln -s /home/me/expense/htdocs expense
- ln -s /home/me/expense/include expense/include
+	cd /home/me
+	git clone https://github.com/samuelmr/expense.git
+	cd /var/www
+	ln -s /home/me/expense/htdocs expense
+	ln -s /home/me/expense/include expense/include
 
 ###Create databases###
 
-	mysql -u <samp>username</samp> -p <samp>database</samp> < sql/expense2_config.sql
-	mysql -u <samp>username</samp> -p <samp>database</samp> < sql/user_auth.sql
+	mysql -u username -p database < sql/expense2_config.sql
+	mysql -u username -p database < sql/user_auth.sql
 
 ###Create configuration file and set your database credentials###
 
