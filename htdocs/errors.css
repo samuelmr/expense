@@ -1,0 +1,26 @@
+  div.error, div.warning, div.notice {
+    background-position: 0.5em 0.6em;
+    background-repeat: no-repeat;
+    border-style: solid;
+    border-width: 0.2em;
+    font-family: "Lucida Console","Courier New",Courier,monospace;
+    font-weight: bold;
+    margin: 0.1em 0em;
+    padding: 0.5em 1em 0.5em 2em;
+  }
+
+  div.error {
+    background-image: url('/i/error.gif');
+    border-color: #F00;
+  }
+
+  div.warning {
+    background-image: url('/i/warning.gif');
+    border-color: #000;
+  }
+
+  div.notice {
+    background-image: url('/i/notice.gif');
+    border-color: #009;
+  }
+

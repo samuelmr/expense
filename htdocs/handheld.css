@@ -1,0 +1,21 @@
+body {
+  margin: 0em;
+  padding: 0em;
+}
+
+select, table {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+input.money {
+ -wap-input-format: 'N*n';
+}
+
+input.date {
+ -wap-input-format: 'NN\\.NN\\.NN2N';
+}
+
+input.curr {
+ -wap-input-format: 'AAA';
+}

@@ -1,0 +1,28 @@
+{
+  "methods": {
+    "username-password-form": {
+      "connect": {
+        "method": "POST",
+        "path": "/",
+        "params": {
+          "username": "login_username",
+          "password": "login_password"
+        }
+      },
+      "disconnect": {
+        "method": "GET",
+        "path": "/?view=logout/"
+      },
+      "register": {
+        "method": "POST",
+        "path": "/register",
+        "id-type": "username",
+        "params": {
+          "id": "login_username",
+          "secret": "login_password"
+        }
+        onsuccess: load-url; url="/"
+      }
+    }
+  }
+}
