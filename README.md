@@ -29,11 +29,11 @@ And into your php.ini:
 #### Method #2: home directory and symlinks####
 You can keep the code where you like, e.g.
 
-	cd /home/me
+	cd
 	git clone https://github.com/samuelmr/expense.git
 	cd /var/www
-	ln -s /home/me/expense/htdocs expense
-	ln -s /home/me/expense/include expense/include
+	ln -s /home/`whoami`/expense/htdocs expense
+	ln -s /home/`whoami`/expense/include expense/include
 
 ###Create database tables###
 You should create a new database for Expense. There will be more tables
