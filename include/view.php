@@ -270,7 +270,7 @@
     $prod = $query['prod'];
     echo "<label for=\"".make_id('prod', $prod)."\">".
          htmlentities($LOCALE['search']).":</label>";
-    echo form_input('prod', $prod, 'text', 10, 'maxlength="30"', TRUE);
+    echo form_input('prod', $prod, 'search', 10, 'maxlength="30"', TRUE);
     echo "</fieldset>\n";
     echo "    <fieldset id=\"datefs\">";
     $from = date('d.m.Y', $query['from']);
