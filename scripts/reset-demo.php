@@ -1,6 +1,5 @@
 <?php
 
-  # ini_set('include_path', '.:./include:../include:../../include');
   chdir(dirname(__FILE__));
   require_once('database.php');
   require_once('Coicop.php');
