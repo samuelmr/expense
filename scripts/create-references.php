@@ -11,23 +11,29 @@
 
  $cc = new Coicop();
 
- $baseparams = 'Valdavarden1=45&Valdavarden2=1&Valdavarden3=2&var1=Kulutusmenot+kotitaloutta+kohti&var2=Hinta&var3=Vuosi&values1=3&values1=263&values1=285&values1=300&values1=311&values1=342&values1=352&values1=360&values1=387&values1=391&values1=403&values1=422&values1=443&values1=451&values1=484&values1=501&values1=513&values1=540&values1=554&values1=571&values1=576&values1=589&values1=611&values1=629&values1=631&values1=635&values1=641&values1=674&values1=687&values1=719&values1=750&values1=770&values1=777&values1=779&values1=781&values1=784&values1=802&values1=806&values1=834&values1=850&values1=860&values1=871&values1=874&values1=880&values1=884&values2=1&values3=5&values3=6&context1=&context2=&context3=&Valdavarden4=7&var4=Kotitaloustyyppi&values4=1&values4=2&values4=3&values4=4&values4=5&values4=6&values4=7&context4=&matrix=120_ktutk_tau_102_fi&root=..%2FDatabase%2FStatFin%2Ftul%2Fktutk%2F&classdir=..%2FDatabase%2FStatFin%2F&classdir2=&noofvar=4&elim=NNNN&numberstub=2&lang=3&varparm=ma%3D120_ktutk_tau_102_fi%26ti%3DKotitalouksien%2Bkulutusmenot%2Bkotitaloutta%2Bkohti%2Bkotitaloustyypin%2Bmukaan%2B1985%252D2006%26path%3D%252E%252E%252FDatabase%252FStatFin%252Ftul%252Fktutk%252F%26xu%3D%26yp%3D%26lang%3D3&ti=Kotitalouksien+kulutusmenot+kotitaloutta+kohti+kotitaloustyypin+mukaan+1985-2006&infofile=&mapname=&multilang=fi&mainlang=fi&timevalvar=&hasAggregno=1&description=Kotitalouksien+kulutusmenot+kotitaloutta+kohti+kotitaloustyypin+mukaan+1985-2006&descriptiondefault=0&stubceller=45&headceller=14&pxkonv=prnmt&sel=+++Jatka+++';
+ $lastvaluesurl = 'http://pxnet2.stat.fi/PXWeb/sq/0a9fc3a1-aa9b-4876-82fb-8a82842f48ff';
+ $index2000url = 'http://pxnet2.stat.fi/PXWeb/sq/f49ae819-1da8-440d-a5cf-1d55f53c8167';
+ $index2005url = 'http://pxnet2.stat.fi/PXWeb/sq/9c703425-c001-4f35-b1c0-9790dddba899';
+ $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/7db59173-cb74-4b1b-8830-db4ff0b0a849';
 
  $indexes = array();
  $remember = array();
- getIndexes(2001);
- getIndexes(2005);
- getIndexes(2010);
- # var_dump($indexes);
+ getIndexes(2001, $index2000url);
+ getIndexes(2005, $index2005url);
+ getIndexes(2010, $index2010url);
 
- getBase($baseparams);
+ var_dump($indexes["2014-01-09.4"]);
+ print_r($indexes);
+ exit();
+ 
+ getBase($lastvaluesurl);
  getBudgets();
 
  function getpx($params) {
   global $DEBUG;
   $url = 'http://193.166.171.75/Dialog/Saveshow.asp';
   if ($DEBUG) {
-   trigger_error("$url?$params", E_USER_NOTICE);
+   # trigger_error("$url?$params", E_USER_NOTICE);
   }
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -37,7 +43,7 @@
   $response = curl_exec($ch);
   curl_close($ch);
 
-  if ($DEBUG) {
+  if ($DEBUG > 1) {
    trigger_error($response, E_USER_NOTICE);
   }
   return $response;
@@ -62,7 +68,7 @@
   return $index;
  }
 
- function getBase($params) {
+ function getBase($lastvaluesurl) {
   global $indexes, $DB_CONFIG, $DEBUG;
   $types = array("Kaikki kotitaloudet",
                  "Yhden hengen talous, alle 65 v",
@@ -72,47 +78,44 @@
                  "Vanhustalous",
                  "Muut kotitaloudet");
   $ehandles = array();
+  $datasource_name = 'Tilastokeskuksen kulutustutkimus';
   foreach ($types as $i => $t) {
    $u = "bm$i";
    $p = $u;
    if ($uid = addUser($u, $p, $t)) {
     $ehandles[$t] = new Expense($uid);
+    $ehandles[$t]->addBenchmarkTarget($t, $datasource_name, $lastvaluesurl);
    }
    else {
     trigger_error("addUser failed ($u, $p, $t)", E_USER_ERROR);
    }
   }
-/*
-  $ehandles["Kaikki kotitaloudet"] = new Expense(121);
-  $ehandles["Yhden hengen talous, alle 65 v"] = new Expense(122);
-  $ehandles["Lapseton pari, alle 65 v"] = new Expense(123);
-  $ehandles["Yksinhuoltajatalous"] = new Expense(124);
-  $ehandles["Kahden huoltajan lapsiperhe"] = new Expense(125);
-  $ehandles["Vanhustalous"] = new Expense(126);
-  $ehandles["Muut kotitaloudet"] = new Expense(127);
-*/
 
-  foreach ($ehandles as $ehandle) {
-   $ehandle->cleanAllProducts();
-  }
-
-  $years = array(2001, 2006);
-  $response = getpx($params);
+  $years = array(2001, 2006, 2012);
+  // $response = getpx($params);
+  $response = file_get_contents($lastvaluesurl);
   if ($DEBUG) {
    echo "\n$response\n";
   }
-  # var_dump($response);
   $rows = explode("\n", $response);
+
+  if (count($rows) > 1) {
+   foreach ($ehandles as $ehandle) {
+    $ehandle->cleanAllProducts();
+   }
+  }
+
   $base = array();
   foreach ($rows as $row) {
    $csv = str_getcsv($row, "\t");
+   # var_dump($csv);
    if (count($csv) < 2) {
     continue;
    }
-   elseif (preg_match('/^A(\d{2})(\d+)\s+(.*?)$/', $csv[1], $match)) {
+   elseif (preg_match('/^A(\d{2})(\d+)\s+(.*?)$/', $csv[0], $match)) {
     $cat = $match[1];
     $sub = $match[2];
-    $desc = $match[3];
+    $desc = utf8_encode($match[3]);
     // tietoliikenne on hassusti numeroitu!
     if ($cat == 8) {
      $sub -= 10;
@@ -147,20 +150,24 @@
      $sub = 9;
     }
    }
-   if (!$cat) {
+   else {
+    trigger_error("Row doesn't match regex: $csv[0]", E_USER_WARNING);
+   }
+   if (!isset($cat)) {
     continue;
    }
-   $key = 1;
-   foreach ($years as $i => $y) {
-    foreach ($types as $j => $t) {
+   $key = 0;
+   foreach ($types as $j => $t) {
+    foreach ($years as $i => $y) {
      $key++;
      $value = $csv[$key];
      if (!is_numeric($value)) {
+      trigger_error("No numeric value for year $y, type $t, key $key ($value)\n", E_USER_WARNING);
       continue;
      }
      # $base[$t][$y]["$cat.$sub"] = $value;
      # echo "$t $y $cat.$sub: $value ($desc)\n";
-     insertIndexed(&$ehandles[$t], "$cat.$sub", $desc, $value/12, $y);
+     insertIndexed($ehandles[$t], "$cat.$sub", $desc, $value/12, $y);
     }
    }
    # var_dump($csv);
@@ -169,9 +176,16 @@
 
  function getBudgets() {
   global $indexes, $DB_CONFIG, $DEBUG;
-  $file = dirname(dirname(__FILE__)).'/include/minimibudjetit.txt';
-  $areas = array('Helsingiss'.chr(228),
-                 'P'.chr(228).chr(228).'kaupunkiseudulla',
+  $file1 = dirname(dirname(__FILE__)).'/include/minimibudjetit2010.txt';
+  $file2 = dirname(dirname(__FILE__)).'/include/minimibudjetit2013.txt';
+
+  $datasource_name = 'Kuluttajatutkimuskeskuksen minimibudjetit';
+  $url = 'http://www.kuluttajatutkimuskeskus.fi/files/5842/Tutkimuksia_ja_selvityksia_3_2014_Viitebudjettien_paivitys_Lehtinen_Aalto_korj_04082014_v2.pdf';
+
+  $cleared = FALSE;
+
+  $areas = array('Helsingissä',
+                 'Pääkaupunkiseudulla',
                  'yli 100 000 asukkaan kaupungissa',
                  '60 000 - 99 999 asukkaan kaupungissa',
                  '20 000 - 59 999 asukkaan kaupungissa',
@@ -181,9 +195,12 @@
                     'yksin asuva yli 65-vuotias nainen',
                     'yksin asuva yli 65-vuotias mies',
                     'asuva lapseton pariskunta',
-                    'asuva lapsiperhe');
-                     
-  $rows = file($file);
+                    'asuva 10 ja 14 v lasten yksinhuoltajaperhe',
+                    'asuva 4 ja 10 v lasten perhe',
+                    'asuva 14 ja 16 v lasten perhe',
+                    'asuva 10, 15 ja 17 v lasten perhe');
+
+  $rows = file($file1);
   $base = array();
   $y = 2009;
 
@@ -195,15 +212,15 @@
     $t = "$a $s - minimibudjetti";
     if ($uid = addUser($u, $p, $t)) {
      $ehandle = new Expense($uid);
+     if (!$cleared) {
+      $ehandle->clearBenchmarkTargets($datasource_name);
+      $cleared = TRUE;
+     }
+     $ehandle->addBenchmarkTarget($t, $datasource_name, $url);
     }
     else {
      trigger_error("addUser failed ($u, $p, $t)", E_USER_ERROR);
     }
-/*
-    $uid = 153 + $key;
-    $ehandle = new Expense($uid);
-*/
-
     $ehandles[$t] = $ehandle;
     $ehandle->cleanAllProducts();
     $key++;
@@ -223,7 +240,11 @@
 
    $key = 1;
    foreach ($areas as $a) {
-    foreach ($statuses as $s) {
+    foreach ($statuses as $k => $s) {
+     if (($k == 5) || ($k == 7) || ($k == 8)) {
+      // lisatty vasta 2013
+      continue;
+     }
      $t = "$a $s - minimibudjetti";
      $key++;
      $value = str_replace(',', '.', $csv[$key]);
@@ -231,14 +252,46 @@
      if (!is_numeric($value) || ($value == 0)) {
       continue;
      }
-     insertIndexed(&$ehandles[$t], $type, $desc, $value, $y);
+     insertIndexed($ehandles[$t], $type, $desc, $value, $y);
+    }
+   }
+   # var_dump($csv);
+  }
+
+  $rows = file($file2);
+  $base = array();
+  $y = 2013;
+  foreach ($rows as $row) {
+   $csv = str_getcsv($row, "\t");
+   if (count($csv) < 2) {
+    continue;
+   }
+   $type = $csv[0];
+   $desc = $csv[1];
+   if (!$desc || !$type) {
+    continue;
+   }
+
+   $key = 1;
+   foreach ($areas as $a) {
+    foreach ($statuses as $s) {
+     $t = "$a $s - minimibudjetti";
+     $key++;
+     $value = str_replace(',', '.', $csv[$key]);
+     if ($DEBUG >= 2) {
+      echo "$type, $desc, $value, $y\n";
+     }
+     if (!is_numeric($value) || ($value == 0)) {
+      continue;
+     }
+     insertIndexed($ehandles[$t], $type, $desc, $value, $y);
     }
    }
    # var_dump($csv);
   }
  }
 
- function insertIndexed($handle, $type, $desc, $value, $y) {
+ function insertIndexed(&$handle, $type, $desc, $value, $y) {
   global $indexes, $DEBUG;
   $itype = $type;
   if ($type == "10.13") {
@@ -251,32 +304,72 @@
    $itype = "12.7";
   }
   if ($y == 2001) {
-   $baseindex = $indexes['2001'];
+   // kulutustutkimus 2001
+   if (isset($indexes["2001-$itype"])) {
+    $baseindex = $indexes["2001-$itype"];
+   }
+   else {
+    trigger_error("no base index for key 2001-$itype", E_USER_WARNING);
+    # $baseindex = $indexes['2001'];
+    $baseindex = 100;
+   }
    $ystart = 2000;
-   $yend = 2004;
+   $yend = 2005;
   }
   elseif ($y == 2006) {
+   // kulutustutkimus 2006
    $baseindexkey = "2006-$itype";
    if (isset($indexes[$baseindexkey])) {
     $baseindex = $indexes[$baseindexkey];
    }
    else {
-    # echo "no base index for key $baseindexkey\n";
+    trigger_error("no base index for key $baseindexkey", E_USER_WARNING);
     $baseindex = 100;
+    # $baseindex = $indexes['2006'];
    }
-   $ystart = 2005;
+   $ystart = 2006;
+   $yend = 2011;
+  }
+  elseif ($y == 2012) {
+   // kulutustutkimus 2012
+   $baseindexkey = "2012-$itype";
+   if (isset($indexes[$baseindexkey])) {
+    $baseindex = $indexes[$baseindexkey];
+   }
+   else {
+    trigger_error("no base index for key $baseindexkey", E_USER_WARNING);
+    $baseindex = 100;
+    # $baseindex = $indexes['2012'];
+   }
+   $ystart = 2012;
    $yend = date('Y');
   }
   elseif ($y == 2009) {
+   // kohtuullisen kulutuksen minimibudjetit
    $baseindexkey = "2009-$itype";
    if (isset($indexes[$baseindexkey])) {
     $baseindex = $indexes[$baseindexkey];
    }
    else {
+    trigger_error("no base index for key $baseindexkey", E_USER_WARNING);
     # echo "no base index for key $baseindexkey\n";
     $baseindex = 100;
    }
    $ystart = 2005;
+   $yend = 2012;
+  }
+  elseif ($y == 2013) {
+   // kohtuullisen kulutuksen paivitetyt minimibudjetit
+   $baseindexkey = "2013-$itype";
+   if (isset($indexes[$baseindexkey])) {
+    $baseindex = $indexes[$baseindexkey];
+   }
+   else {
+    trigger_error("no base index for key $baseindexkey", E_USER_WARNING);
+    # echo "no base index for key $baseindexkey\n";
+    $baseindex = 100;
+   }
+   $ystart = 2013;
    $yend = date('Y');
   }
   else {
@@ -305,8 +398,8 @@
     }
     if ($baseindex && $currentindex) {
      $indexed = ($value)/$baseindex*$currentindex;
-     if ($DEBUG) {
-      echo "$iy $im $type: $indexed ($baseindex, $currentindex)";
+     if ($DEBUG > 1) {
+      echo "[".$handle->user."] $iy $im $type: $value => $indexed ($baseindex, $currentindex)\n";
      }
      # $fmt = '%s (%.2f / %.2f * %.2f)';
      # $prodstr = sprintf($fmt, $desc, ($value), $baseindex, $currentindex);
@@ -317,7 +410,7 @@
      $values = array('date' => $date,
                      'cost' => $indexed,
                      'other' => $value,
-                     'currency' => sprintf('I%02d', ($y-2000)),
+                     'currency' => sprintf('I%02d', ($iy-2000)),
                      'type' => "$type",
                      'prod' => $prodstr);
      if ($handle->addProduct($values)) {
@@ -332,77 +425,183 @@
   return str_replace('.', ',', sprintf('%.2f', $nr));
  }
 
- function getIndexes($year) {
-  global $indexes, $remember;
-  $indexparams = array('2001' => 'Valdavarden1=6&Valdavarden2=13&Valdavarden3=1&var1=Vuosi&var2=Kuukausi&var3=Tiedot&values1=1&values1=2&values1=3&values1=4&values1=5&values1=6&values2=1&values2=2&values2=3&values2=4&values2=5&values2=6&values2=7&values2=8&values2=9&values2=10&values2=11&values2=12&values2=13&values3=1&context1=&context2=&context3=&matrix=020_khi_tau_102_fi&root=..%2FDatabase%2FStatFin%2Fhin%2Fkhi%2F&classdir=..%2FDatabase%2FStatFin%2F&classdir2=&noofvar=3&elim=NNN&numberstub=2&lang=3&varparm=ma%3D020_khi_tau_102_fi%26ti%3DKuluttajahintaindeksi%2B2000%253D100%26path%3D%252E%252E%252FDatabase%252FStatFin%252Fhin%252Fkhi%252F%26xu%3D%26yp%3D%26lang%3D3&ti=Kuluttajahintaindeksi+2000%3D100&infofile=&mapname=&multilang=fi&mainlang=fi&timevalvar=Vuosi&hasAggregno=1&description=Kuluttajahintaindeksi+2000%3D100&descriptiondefault=1&stubceller=78&headceller=1&pxkonv=prnmt&sel=+++Jatka+++',
-                       '2005' => 'Valdavarden1=43&Valdavarden2=1&Valdavarden3=6&var1=Hy%F6dykeryhm%E4&var2=Tiedot&var3=Vuosi&values1=3&values1=269&values1=295&values1=325&values1=337&values1=411&values1=430&values1=440&values1=465&values1=480&values1=500&values1=514&values1=554&values1=569&values1=599&values1=620&values1=636&values1=663&values1=693&values1=713&values1=719&values1=733&values1=780&values1=809&values1=817&values1=822&values1=829&values1=885&values1=899&values1=954&values1=997&values1=1034&values1=1049&values1=1050&values1=1055&values1=1061&values1=1109&values1=1120&values1=1168&values1=1189&values1=1197&values1=1211&values1=1217&values2=1&values3=1&values3=2&values3=3&values3=4&values3=5&values3=6&context1=&context2=&context3=&Valdavarden4=13&var4=Kuukausi&values4=1&values4=2&values4=3&values4=4&values4=5&values4=6&values4=7&values4=8&values4=9&values4=10&values4=11&values4=12&values4=13&context4=&matrix=010_khi_tau_101_fi&root=..%2FDatabase%2FStatFin%2Fhin%2Fkhi%2F&classdir=..%2FDatabase%2FStatFin%2F&classdir2=&noofvar=4&elim=NNNN&numberstub=2&lang=3&varparm=ma%3D010_khi_tau_101_fi%26ti%3DKuluttajahintaindeksi%2B2005%253D100%26path%3D%252E%252E%252FDatabase%252FStatFin%252Fhin%252Fkhi%252F%26xu%3D%26yp%3D%26lang%3D3&ti=Kuluttajahintaindeksi+2005%3D100&infofile=&mapname=&multilang=fi&mainlang=fi&timevalvar=Vuosi&hasAggregno=1&description=Kuluttajahintaindeksi+2005%3D100&descriptiondefault=1&stubceller=43&headceller=78&pxkonv=prnmt&sel=+++Jatka+++',
-                       '2010' => 'Valdavarden1=42&Valdavarden2=1&Valdavarden3=4&var1=Hy%F6dykeryhm%E4&var2=Tiedot&var3=vuosi&values1=3&values1=130&values1=147&values1=167&values1=176&values1=211&values1=222&values1=229&values1=244&values1=254&values1=269&values1=280&values1=302&values1=313&values1=334&values1=348&values1=359&values1=375&values1=394&values1=408&values1=413&values1=425&values1=454&values1=473&values1=479&values1=483&values1=492&values1=525&values1=535&values1=566&values1=593&values1=617&values1=625&values1=629&values1=634&values1=657&values1=666&values1=691&values1=704&values1=710&values1=720&values1=724&values2=1&values3=1&values3=2&values3=3&values3=4&context1=&context2=&context3=&Valdavarden4=13&var4=kuukausi_j&values4=1&values4=2&values4=3&values4=4&values4=5&values4=6&values4=7&values4=8&values4=9&values4=10&values4=11&values4=12&values4=13&context4=&matrix=008_khi_tau_109_fi&root=..%2FDatabase%2FStatFin%2Fhin%2Fkhi%2F&classdir=..%2FDatabase%2FStatFin%2F&classdir2=&noofvar=4&elim=NNNN&numberstub=2&lang=3&varparm=ma%3D008_khi_tau_109_fi%26ti%3DKuluttajahintaindeksi%2B2010%253D100%26path%3D%252E%252E%252FDatabase%252FStatFin%252Fhin%252Fkhi%252F%26xu%3D%26yp%3D%26lang%3D3&ti=Kuluttajahintaindeksi+2010%3D100&infofile=&mapname=&multilang=fi&mainlang=fi&timevalvar=vuosi&hasAggregno=1&description=Kuluttajahintaindeksi+2010%3D100&descriptiondefault=1&stubceller=42&headceller=52&pxkonv=prnmt&sel=+++Jatka+++');
+ function getIndexes($year, $url) {
+  global $cc, $indexes, $remember;
 
-  $params = $indexparams["$year"];
-  $months = array('Vuosikeskiarvo' => '',
-                  'Tammikuu' => '-01',
-                  'Helmikuu' => '-02',
-                  'Maaliskuu' => '-03',
-                  'Huhtikuu' => '-04',
-                  'Toukokuu' => '-05',
-                  'Kesäkuu' => '-06',
-                  'Heinäkuu' => '-07',
-                  'Elokuu' => '-08',
-                  'Syyskuu' => '-09',
-                  'Lokakuu' => '-10',
-                  'Marraskuu' => '-11',
-                  'Joulukuu' => '-12');
-  $response = getpx($params);
-  # var_dump($response);  
+  $response = file_get_contents($url);
   $rows = explode("\n", $response);
-  foreach ($rows as $row) {
-   $csv = str_getcsv($row, "\t");
-   if (count($csv) == 3) {
-    // Kuluttajahintaindeksi 2000 = 100
-    $key = $csv[0].$months[utf8_encode($csv[1])];
-    $indexes[$key] = $csv[2];
-    # echo "indexes"."[$key] = $csv[2] ($key)\n";
-    # echo "indexes"."[$key] = $indexes[$key]\n";
-    # var_dump($csv);
+
+  // Kuluttajahintaindeksi 2000=100 on eri muodossa
+  if ($year == 2001) {
+   // datassa kategorioita ei ole numeerisina - numeroidaan jarjestyksen mukaan
+   $cats = array(
+    '01.1', '01.2',
+    '02.1', '02.2',
+    '03.1', '03.2',
+   );
+   # $cat_index = 0;
+   $tempindex = array();
+   foreach ($rows as $row) {
+    $csv = str_getcsv($row, "\t");
+    if (is_numeric($csv[0])) {
+     for ($m=1; $m<=13; $m++) {
+      $tempkey = ($m<13) ? sprintf("%04d-%02d-%s", $csv[0], $m, $csv[1]) : "$csv[0]-$csv[1]";
+      $tempindex[$tempkey] = $csv[$m+2];
+      # echo "tempindex[$tempkey] = ".$csv[$m+2]."\n";
+     }
+    }
    }
-   elseif (count($csv) > 1) {
-    # echo count($csv)."\n";
+   # print_r($tempindex);
+   for ($i=0; $i<count($cc->cats); $i++) {
+    $catid = $cc->cats[$i]->id;
+    # echo $catid.": ".$cc->getCatName($catid, 'fi')."\n";
+    for ($j=0; $j<count($cc->cats[$i]->subs); $j++) {
+     $subid = $cc->cats[$i]->subs[$j]->id;
+     # echo $subid.": ".$cc->getSubName($subid, 'fi')."\n";
+     if ($subid == "04.4") {
+      $keyname = 'Vesi ja muut asumispalvelut';
+     }
+     elseif ($catid == "05") {
+      $keyname = 'KALUSTEET, KOTITALOUSKONEET JA YLEINEN KODINHOITO';
+     }
+     elseif ($catid == "06") {
+      $keyname = 'TERVEYS';
+     }
+     elseif ($subid == "07.1") {
+      $keyname = 'Ajoneuvon hankinta';
+     }
+     elseif ($catid == "8") {
+      $keyname = utf8_decode('VIESTINTÄ');
+     }
+     elseif ($catid == "9") {
+      $keyname = utf8_decode('KULTTUURI JA VAPAA-AIKA');
+     }
+     elseif ($catid == "10") {
+      $keyname = utf8_decode('KOULUTUS');
+     }
+     elseif ($catid == "11") {
+      $keyname = utf8_decode('RAVINTOLAT JA HOTELLIT');
+     }
+     elseif ($catid == "12") {
+      $keyname = utf8_decode('MUUT TAVARAT JA PALVELUT');
+     }
+     else {
+      $keyname = utf8_decode($cc->getSubName($subid, 'fi'));
+     }
+     for ($y=2000; $y<=2004; $y++) {
+      $indexes[$y] = $tempindex["$y-KULUTTAJAHINTAINDEKSI"];
+      for ($m=1; $m<=13; $m++) {
+       $ym = ($m < 13) ? sprintf("%04d-%02d", $y, $m) : $y;
+       $indexes[$ym] = $tempindex["$ym-KULUTTAJAHINTAINDEKSI"];
+       if ($i == 13) {
+       }
+       if (isset($tempindex["$ym-$keyname"])) {
+        $indexes["$ym-$subid"] = $tempindex["$ym-$keyname"];
+       }
+       elseif ($i <= 13) {
+        trigger_error("No temp index for $subid ($catid) $ym-$keyname", E_USER_WARNING);
+       }
+      }
+     }
+    }
+   }
+   # print_r($indexes);
+   return;
+  }
+  elseif ($year == 2005) {
+   foreach ($rows as $row) {
+    # echo "$row\n\n";
+    $csv = str_getcsv($row, "\t");
+    # print_r($csv);
+    if (count($csv) > 1) {
+     # echo count($csv)."\n";
+     if (preg_match('/^(\d{2})\.(\d+)\s+(.*?)$/', $csv[0], $match)) {
+      $cat = $match[1];
+      $sub = $match[2];
+      $desc = utf8_encode($match[3]);
+      # echo "$cat.$sub : $desc\n";
+     }
+     elseif ($csv[0] == '0 KOKONAISINDEKSI') {
+      $cat = 0;
+      $sub = 0;
+      $desc = "Kokonaisindeksi";
+     }
+     else {
+      # trigger_error("Row not matching: $row", E_USER_WARNING);
+      continue;
+     }
+     $y = $year;
+     $m = 1;
+     for ($i=2; $i<count($csv); $i++) {
+      if (!is_numeric($csv[$i])) {
+       echo "$i: $csv[$i] is not numeric ($y-$m)\n";
+       break;
+      }
+      if ($m > 13) {
+       $m = 1;
+       $y++;
+      }
+      $key = ($cat && $sub) ? sprintf('%d-%02d-%s', $y, $m, "$cat.$sub") : "$y-$m";
+      if ($m == 13) {
+       $key = ($cat && $sub) ? sprintf('%d-%s', $y, "$cat.$sub") : $y;
+       if (($year == 2005) && ($y == 2010)) {
+        $remember["$cat.$sub"] = $csv[$i];
+       }
+      }
+      if (($year == 2010) && isset($remember["$cat.$sub"])) {
+       $indexes[$key] = $remember["$cat.$sub"]/100 * $csv[$i];
+      }
+      else {
+       $indexes[$key] = $csv[$i];
+      }
+      # echo "indexes"."[$key] = $indexes[$key]\n";
+      $m++;
+     }
+    }
+   }
+   # var_dump($indexes);
+   # print_r($indexes);
+   # exit;
+   return;
+  }
+  else {
+   foreach ($rows as $row) {
+    # echo "$row\n\n";
+    $csv = str_getcsv($row, "\t");
+    # print_r($csv);
+    $y = $csv[0];
+    if (count($csv) < 2) {
+     continue;
+    }
     if (preg_match('/^(\d{2})\.(\d+)\s+(.*?)$/', $csv[1], $match)) {
      $cat = $match[1];
      $sub = $match[2];
      $desc = $match[3];
-     # echo "$cat . $sub : $desc\n";
+     # echo "$cat.$sub : $desc\n";
     }
-    $y = ($year == 2005) ? 2005 : 2010;
-    $m = 1;
-    for ($i=2; $i<count($csv); $i++) {
-     if (!is_numeric($csv[$i])) {
-      # echo "$i: $csv[$i] is not numeric ($y-$m)\n";
-      break;
+    elseif ($csv[1] == '0 KULUTTAJAHINTAINDEKSI') {
+     $cat = 0;
+     $sub = 0;
+     $desc = "Kokonaisindeksi";
+    }
+    else {
+     # echo "Row doesn't match: $csv[1]";
+     continue;
+    }
+    $key = ($cat && $sub) ? sprintf('%d-%s', $y, "$cat.$sub") : $y;
+    if (is_numeric($csv[14])) {
+     $indexes[$key] = $csv[14];
+    }
+    for ($m=1; $m<=12; $m++) {
+     $key = ($cat && $sub) ? sprintf('%d-%02d-%s', $y, $m, "$cat.$sub") : "$y-$m";
+     if (is_numeric($csv[$m+1])) {
+      $indexes[$key] = $csv[$m+1];
      }
-     if ($m > 13) {
-      $m = 1;
-      $y++;
-     }
-     $key = sprintf('%d-%02d-%s', $y, $m, "$cat.$sub");
-     if ($m == 13) {
-      $key = sprintf('%d-%s', $y, "$cat.$sub");
-      if (($year == 2005) && ($y == 2010)) {
-       $remember["$cat.$sub"] = $csv[$i];
-      }
-     }
-     if ($year == 2010) {
-      $indexes[$key] = $remember["$cat.$sub"]/100 * $csv[$i];
-     }
-     else {
-      $indexes[$key] = $csv[$i];
-     }
-     # echo "indexes"."[$key] = $indexes[$key]\n";
-     $m++;
     }
    }
+   # print_r($indexes);
+   # exit;
   }
-  # var_dump($indexes);
  }
 
  function addUser($u, $p, $desc) {
@@ -417,7 +616,7 @@
    return $row['user_id'];
   }
   else {
-   trigger_error("$select failed");
+   trigger_error("No user found with $select", E_USER_WARNING);
   }
   $select = "SHOW TABLE STATUS LIKE '$user_table'";
   $res = db_query($select);
