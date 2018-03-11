@@ -57,7 +57,7 @@
                       '12.9' => array('min' => 0.5, 'max' => 1200, '*' => 2));
 
   $totals = array();
-  $stat_userid = 121;
+  $stat_userid = 301;
   $stat = new Expense($stat_userid);
   $statquery = Array();
   $statquery['from'] = $start_time;
@@ -72,6 +72,10 @@
     #   $sub =& $subs[$j];
     # }
   }
+
+  if (count($totals) < 1) {
+   die("Could not get baseline readings!");
+  }
                       
   $demo->cleanAllProducts();
   $lipsum = file('../include/lipsum.txt');
@@ -80,6 +84,9 @@
 
   for ($i=0; $i<count($cc->cats); $i++) {
     $cat =& $cc->cats[$i];
+    if (!$totals[$cat->id]) {
+     continue;
+    }
     $statquery['type'] = $cat->id;
     $subs =& $cat->getSubs();
     for ($j=0; $j<count($subs); $j++) {
