@@ -11,20 +11,24 @@
 
  $cc = new Coicop();
 
- $lastvaluesurl = 'http://pxnet2.stat.fi/PXWeb/sq/0a9fc3a1-aa9b-4876-82fb-8a82842f48ff';
- $index2000url = 'http://pxnet2.stat.fi/PXWeb/sq/f49ae819-1da8-440d-a5cf-1d55f53c8167';
- $index2005url = 'http://pxnet2.stat.fi/PXWeb/sq/9c703425-c001-4f35-b1c0-9790dddba899';
- $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/7db59173-cb74-4b1b-8830-db4ff0b0a849';
+ // http://pxnet2.stat.fi/PXWeb/pxweb/fi/StatFin/StatFin__tul__ktutk/statfin_ktutk_pxt_001.px/table/tableViewLayout1/?rxid=b26cdefd-29c7-4721-b05a-fec60145ee6f
+ $lastvaluesurl = 'http://pxnet2.stat.fi/PXWeb/sq/f9e857be-ee6f-4430-ae4e-34cb1ac93e0b';
+ $index2000url = 'http://pxnet2.stat.fi/PXWeb/sq/c0db653c-b549-49d8-ba9d-c79b9ae5c2aa';
+ $index2005url = 'http://pxnet2.stat.fi/PXWeb/sq/772f1db4-1db4-4b9b-b0b4-d3ea792c6776';
+ # $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/36cb1acc-00dc-4e43-a0b6-a420de52012d';
+ $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/5627568e-eb4d-4d71-b972-9de5cadeaa6a';
+ $index2015url = 'http://pxnet2.stat.fi/PXWeb/sq/222b2737-c9c2-4cba-8983-a0f508b6d0ca';
 
  $indexes = array();
  $remember = array();
  getIndexes(2001, $index2000url);
  getIndexes(2005, $index2005url);
  getIndexes(2010, $index2010url);
+ getIndexes(2015, $index2015url);
 
- var_dump($indexes["2014-01-09.4"]);
- print_r($indexes);
- exit();
+ # var_dump($indexes["2014-01-09.4"]);
+ # print_r($indexes);
+ # exit();
  
  getBase($lastvaluesurl);
  getBudgets();
@@ -150,6 +154,9 @@
      $sub = 9;
     }
    }
+   elseif ($csv[0] == 'Kulutusmenot') {
+    continue;
+   }
    else {
     trigger_error("Row doesn't match regex: $csv[0]", E_USER_WARNING);
    }
@@ -161,7 +168,11 @@
     foreach ($years as $i => $y) {
      $key++;
      $value = $csv[$key];
-     if (!is_numeric($value)) {
+     if ($value == '..') {
+      // alle 5 havaintoa tai tieto ei saatavilla
+      continue;
+     }
+     elseif (!is_numeric($value)) {
       trigger_error("No numeric value for year $y, type $t, key $key ($value)\n", E_USER_WARNING);
       continue;
      }
@@ -433,16 +444,10 @@
 
   // Kuluttajahintaindeksi 2000=100 on eri muodossa
   if ($year == 2001) {
-   // datassa kategorioita ei ole numeerisina - numeroidaan jarjestyksen mukaan
-   $cats = array(
-    '01.1', '01.2',
-    '02.1', '02.2',
-    '03.1', '03.2',
-   );
-   # $cat_index = 0;
    $tempindex = array();
    foreach ($rows as $row) {
     $csv = str_getcsv($row, "\t");
+    # print_r($csv);
     if (is_numeric($csv[0])) {
      for ($m=1; $m<=13; $m++) {
       $tempkey = ($m<13) ? sprintf("%04d-%02d-%s", $csv[0], $m, $csv[1]) : "$csv[0]-$csv[1]";
@@ -452,6 +457,7 @@
     }
    }
    # print_r($tempindex);
+   # return;
    for ($i=0; $i<count($cc->cats); $i++) {
     $catid = $cc->cats[$i]->id;
     # echo $catid.": ".$cc->getCatName($catid, 'fi')."\n";
@@ -515,7 +521,7 @@
     # print_r($csv);
     if (count($csv) > 1) {
      # echo count($csv)."\n";
-     if (preg_match('/^(\d{2})\.(\d+)\s+(.*?)$/', $csv[0], $match)) {
+     if (preg_match('/^(\d{2})\.(\d+)\s+(.*?)$/', $csv[1], $match)) {
       $cat = $match[1];
       $sub = $match[2];
       $desc = utf8_encode($match[3]);
@@ -530,9 +536,9 @@
       # trigger_error("Row not matching: $row", E_USER_WARNING);
       continue;
      }
-     $y = $year;
+     $y = $csv[0];
      $m = 1;
-     for ($i=2; $i<count($csv); $i++) {
+     for ($i=3; $i<count($csv); $i++) {
       if (!is_numeric($csv[$i])) {
        echo "$i: $csv[$i] is not numeric ($y-$m)\n";
        break;
@@ -562,7 +568,7 @@
    # var_dump($indexes);
    # print_r($indexes);
    # exit;
-   return;
+   # return;
   }
   else {
    foreach ($rows as $row) {
@@ -587,6 +593,10 @@
     else {
      # echo "Row doesn't match: $csv[1]";
      continue;
+    }
+    // 2015 indeksin omistusasuminen on 4.6, ennen oli 4.2
+    if (($cat == 4) && ($sub == 6)) {
+     $sub = 2;
     }
     $key = ($cat && $sub) ? sprintf('%d-%s', $y, "$cat.$sub") : $y;
     if (is_numeric($csv[14])) {
