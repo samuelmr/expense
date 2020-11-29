@@ -207,7 +207,7 @@
     // like 0 and '' and decide, which should be selected
     // -- the third value to in_array() doesn't do the job
     $currgroup = '';
-    while (list($value, $text) = each($options)) {
+    foreach ($options as $value => $text) {
       // how to pass $optgroup???
       if ($optgroup && ($currgroup != $optgroup)) {
         if ($currgroup) {
@@ -266,18 +266,34 @@
 
   function make_id($name, $value=NULL, $form=NULL) {
     $FORMS = $GLOBALS['FORMS'];
-    $search = "/([^$FORMS[id_allowed_chars]])/e";
-    $replace = $FORMS['id_escape_start'].".ord('\\1').".
-               $FORMS['id_escape_end'];
+    # $search = "/([^$FORMS[id_allowed_chars]])/e";
+    # $replace = $FORMS['id_escape_start'].".ord('\\1').".
+    #            $FORMS['id_escape_end'];
+    $search = "/([^$FORMS[id_allowed_chars]])/";
     if ($form) {
      $name = $form.$FORMS['id_join_string'].$name;
     }
-    $id = preg_replace($search, $replace, $name);
+    # $id = preg_replace($search, $replace, $name);
+    $id = preg_replace_callback(
+            $search,
+            'form_param_replace',
+            $name);
     if (!is_null($value)) {
       $id .= $FORMS['id_join_string'].
-             preg_replace($search, $replace, $value);
+        preg_replace_callback(
+          $search,
+          'form_param_replace',
+          $value
+        );
     }
     return $id;
+  }
+
+  function form_param_replace($matches) {
+    global $FORMS; 
+    return $FORMS['id_escape_start'].
+           ".ord('\\1').".
+           $FORMS['id_escape_end'];
   }
 
 ?>
