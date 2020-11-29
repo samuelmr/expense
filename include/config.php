@@ -39,7 +39,7 @@
 
     $view = 'summary';
     if (isset($req['view'])) {
-      $vs = array('insert', 'modify', 'delete', 'settings', 'details', 'summary', 'benchmark', 'export', 'logout');
+      $vs = array('insert', 'modify', 'delete', 'settings', 'details', 'summary', 'benchmark', 'export', 'json', 'logout');
       $view = (in_array($req['view'], $vs) ? $req['view'] : $view);
     }
  
@@ -69,10 +69,11 @@
   }
 
   function getConfig(&$sess, &$query) {
+    $conf = array();
     if (isset($sess['expense_config']) && !isset($_REQUEST['init'])) {
       return $sess['expense_config'];
     }
-    elseif ($sess['userid']) {
+    elseif (isset($sess['userid']) && $sess['userid']) {
       $select = "
         SELECT    *
         FROM      expense2_config
@@ -128,7 +129,7 @@
     if (isset($sess['expense_locale']) && !$lang) {
       return $sess['expense_locale'];
     }
-    if (!$lang) {
+    if (!$lang && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
      $acc = preg_replace('/(;.*$)/', '', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
      $a = explode(',', $acc);
      # $lang = (array_search('en', $a) < array_search('fi', $a) ? 'en' : 'fi');
