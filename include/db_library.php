@@ -7,9 +7,10 @@
 
     if ($conn) {
       mysql_select_db($db);
+      mysql_set_charset('UTF-8');
     }
     else {
-      echo "<h1>DB CONNECTION FAILED</h1>\n";
+      trigger_error("DB CONNECTION FAILED", E_USER_ERROR);
       exit();
     }
     return $conn;
@@ -56,7 +57,8 @@
     }
     $select .= "\nFROM	$tables\nWHERE	1=1";
     if (is_array($like)) {
-      while(list($key, $value) = each($like)) {
+      // while(list($key, $value) = each($like)) {
+      foreach($like as $key => $value) {
         $select .= "\n$opr $key LIKE '$value'";
       }
       reset($like);
@@ -184,7 +186,8 @@
     #  }
     # }
     if (is_array($like)) {
-      while(list($key, $value) = each($like)) {
+      // while(list($key, $value) = each($like)) {
+      foreach($like as $key => $value) {
         $update .= "\n$opr $key LIKE '$value'";
       }
       reset($like);
