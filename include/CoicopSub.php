@@ -2,7 +2,7 @@
 
 class CoicopSub{
 
-  function CoicopSub($id, $parent, $nameFi, $nameEn) {
+  function __construct($id, $parent, $nameFi, $nameEn) {
     $this->id = $id;
     $this->parent = $parent;
     $this->nameFi = $nameFi;
