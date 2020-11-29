@@ -6,6 +6,7 @@ require_once('model.php');
 class Expense {
 
   var $configTable = "expense2_config";
+  var $authTable = "user_auth";
   var $confUserCol = "user_id";
   var $confTitleCol = "title";
   var $confLangCol = "lang";
@@ -13,8 +14,12 @@ class Expense {
   var $benchmarkTable = "expense2_benchmark";
   var $bmFromCol = 'from_id';
   var $bmToCol = 'to_id';
+  var $bmDescCol = 'description';
+  var $bmSourceCol = 'datasource_name';
+  var $bmUrlCol = 'datasource_url';
+  var $bmUnameCol = 'user_name';
 
-  function Expense($user) {
+  function __construct($user) {
     $this->user = $user;
     $this->config = $this->getConfig();
   }
@@ -43,15 +48,42 @@ class Expense {
   function setConfig($user, $values) {
   }
 
+  function addBenchmarkTarget($desc, $source=NULL, $url=NULL, $uname, $usedby=NULL) {
+    $insert = "REPLACE INTO ".db_escape_string($this->benchmarkTable)." (".
+              db_escape_string($this->bmToCol).
+              ($desc ? ", ".db_escape_string($this->bmDescCol) : "").
+              ($source ? ", ".db_escape_string($this->bmSourceCol) : "").
+              ($url ? ", ".db_escape_string($this->bmUrlCol) : "").
+              ($uname ? ", ".db_escape_string($this->bmUnameCol) : "").
+              ($usedby ? ", ".db_escape_string($this->bmFromCol) : "").
+              ") VALUES ('".
+              db_escape_string($this->user).
+              ($desc ? "', '".db_escape_string($desc) : "").
+              ($source ? "', '".db_escape_string($source) : "").
+              ($url ? "', '".db_escape_string($url) : "").
+              ($uname ? "', '".db_escape_string($uname) : "").
+              ($usedby ? "', '".db_escape_string($usedby) : "").
+              "')";
+    # trigger_error($insert);
+    return db_query($insert);
+  }
+
   function getBenchmarkTargets() {
     $targets = array();
     $select = "SELECT ".db_escape_string($this->bmToCol).
+              ", ".db_escape_string($this->bmUnameCol).
+              ", ".db_escape_string($this->bmUrlCol).
+              ", ".db_escape_string($this->bmSourceCol).
               " FROM ".db_escape_string($this->benchmarkTable).
               " WHERE ".db_escape_string($this->bmFromCol).
               " = '".db_escape_string($this->user)."'".
-              " OR ".db_escape_string($this->bmFromCol)." IS NULL".
+              " OR ".db_escape_string($this->bmFromCol)." = 0".
               " ORDER BY ".db_escape_string($this->bmToCol);
     $stmt = db_query($select);
+    # trigger_error($select, E_USER_NOTICE);
+    if (!$stmt) {
+      return FALSE;
+    }
     while ($row = db_fetch_assoc($stmt)) {
       $subsel = "SELECT ".
                 db_escape_string($this->confTitleCol).
@@ -63,6 +95,9 @@ class Expense {
       $substmt = db_query($subsel);
       if ($subrow = db_fetch_assoc($substmt)) {
         $config = array();
+        $config['user_name'] = $row[$this->bmUnameCol];
+        $config['url'] = $row[$this->bmUrlCol];
+        $config['source'] = $row[$this->bmSourceCol];
         $config['title'] = $subrow[$this->confTitleCol];
         $config['lang'] = $subrow[$this->confLangCol];
         $config['prodTable'] = $subrow[$this->confProdCol];
@@ -72,6 +107,14 @@ class Expense {
     }
     db_free_result($stmt);
     return $targets;
+  }
+
+  function clearBenchmarkTargets($desc) {
+    $targets = array();
+    $delete = "DELETE FROM ".db_escape_string($this->benchmarkTable).
+              " WHERE ".db_escape_string($this->bmDescCol).
+              " = '".db_escape_string($desc)."'";
+    return db_query($delete);
   }
 
   function getFirstDate() {
