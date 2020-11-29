@@ -60,7 +60,7 @@
            "<a href=\"$link\" title=\"".
            htmlentities($LOCALE['showonly']).
            " $title\">".
-           str_replace('.', ',', $tmp)."</a>".
+           format_amount($tmp)."</a>".
            "</td>";
       }
       $query['from'] = mktime(0, 0, 0, 1, 1, $y);
@@ -71,7 +71,7 @@
       $title = htmlentities($LOCALE['total'])." $y";
       echo "<td class=\"year\" headers=\"y$y total\">".
            "<a href=\"$link\" title=\"$title\">".
-           str_replace('.', ',', $tmp)."</a></td>";
+           format_amount($tmp)."</a></td>";
       echo "</tr>\n";
     }
     echo "   </tbody>\n  </table>\n";
@@ -165,8 +165,8 @@
            "</a>".
            "</td>\n";
       echo "     <td class=\"cost\"".($oa ? " title=\"$oa $oc\"" : "").">".
-           str_replace('.', ',', $cost)."</td>\n";
-      echo "     <td class=\"perc\">".str_replace('.', ',', $perc)."</td>\n";
+           format_amount($cost)."</td>\n";
+      echo "     <td class=\"perc\">".format_amount($perc)."</td>\n";
       echo "     <td class=\"type\">".
            "<a href=\"?$urlattrs\" title=\"$hint\">".
            htmlentities($type)."</a></td>\n";
@@ -176,7 +176,8 @@
       $hint = htmlentities("$LOCALE[search]: $prod");
       echo "     <td class=\"desc\">".
            "<a href=\"?$urlattrs\" title=\"$hint\">".
-           htmlentities($prod)."</a>";
+           # htmlspecialchars(utf8_encode($prod))."</a>";
+           htmlspecialchars($prod)."</a>";
            # "</td>\n";
       if (!$CONFIG['read_only']) {
         # echo "     <td class=\"edit\">";
@@ -218,8 +219,8 @@
     echo "    <tr class=\"total sortbottom\">\n";
     echo "     <td class=\"total\">".htmlentities($LOCALE['total'])."</td>\n";
     echo "     <td class=\"cost\" id=\"currenttotal\">".
-         str_replace('.', ',', $total)."</td>\n";
-    echo "     <td class=\"perc\">".str_replace('.', ',', $total_perc).
+         format_amount($total)."</td>\n";
+    echo "     <td class=\"perc\">".format_amount($total_perc).
          "</td>\n";
     echo "     <td class=\"type\" colspan=\"2\">&nbsp;</td>\n";
     # echo "     <td class=\"edit\">&nbsp;</td>\n";
@@ -238,6 +239,8 @@
     echo form_input('order', $query['order'], 'hidden');
     echo "\n    ";
     echo form_input('prev', $query['prev'], 'hidden');
+    echo "\n";
+    echo form_input('bmto', $query['bmto'], 'hidden');
     echo "\n";
     echo "    <fieldset id=\"selectfs\">\n     ";
     $type = $query['type'];
@@ -294,17 +297,20 @@
     $text_logout = htmlentities($LOCALE['logout']);
     $logoutmsg = urlencode($LOCALE['logoutmsg']);
     $returnmsg = urlencode($LOCALE['returnmsg']);
-    echo <<<EO1
+    echo <<<EO0
      <ul id="links">
+
+EO0;
+    if (!$CONFIG['read_only']) {
+      echo <<<EO1
       <li><a id="insertlink" target="insWin" href="./?$urlattrs_insert" class="modify">$text_insert</a></li>
 
 EO1;
-    if (!$CONFIG['read_only']) {
-      echo <<<EO2
+    }
+    echo <<<EO2
       <li><a id="logoutlink" href="./?view=logout&amp;message=$logoutmsg&amp;back=$returnmsg">$text_logout</a></li>
 
 EO2;
-    }
     echo "     </ul>\n";
     echo "    </fieldset>\n";
     echo "   </fieldset>\n";
@@ -333,7 +339,7 @@ EO2;
     echo "    <fieldset id=\"selectfs\">\n     ";
     echo form_label('type', NULL, $LOCALE['type'], 'class="header"');
     echo selectListCombined($query['lang'], $cc, 'type', $type, FALSE);
-    $coicopurl = 'http://www.stat.fi/tk/tt/luokitukset/popup/coicop.pdf';
+    $coicopurl = 'https://www.stat.fi/tk/tt/luokitukset/popup/coicop.pdf';
     echo " <a href=\"$coicopurl\" target=\"statfi\">(?)</a>";
     echo "\n";
     echo "    </fieldset>\n";
@@ -399,7 +405,7 @@ EO2;
       echo "    <tr>";
       echo "     <td class=\"date\">$date</td>\n";
       echo "     <td class=\"cost\"".($oa ? " title=\"$oa $oc\"" : "").">".
-           str_replace('.', ',', $cost)."</td>\n";
+           format_amount($cost)."</td>\n";
       echo "     <td class=\"type\">".htmlentities($type)."</td>\n";
       echo "     <td class=\"desc\">".
            "<a target=\"insWin\" class=\"modify\"".
@@ -500,8 +506,8 @@ EO2;
       echo "     <td class=\"type\">".
            "<a href=\"./?$urlattrs\" title=\"$hint\">".
            htmlentities($type)."</a></td>\n";
-      echo "     <td class=\"cost\">".str_replace('.', ',', $cost)."</td>\n";
-      echo "     <td class=\"perc\">".str_replace('.', ',', $perc)."</td>\n";
+      echo "     <td class=\"cost\">".format_amount($cost)."</td>\n";
+      echo "     <td class=\"perc\">".format_amount($perc)."</td>\n";
       echo "     <td class=\"img\">".
              "<a href=\"./?$urlattrs\" title=\"$hint\">$img</a></td>\n";
       echo "    </tr>\n";
@@ -510,15 +516,15 @@ EO2;
     echo "   </tbody>\n";
     $total = sprintf("%.2f", $e->getTotal($query));
     $total_perc = sprintf("%.02f&nbsp;%%", 100 * $total_perc);
-    $avgnum = str_replace('.', ',', sprintf('%.02f', $avg));
+    $avgnum = format_amount(sprintf('%.02f', $avg));
     $avgtext = sprintf($LOCALE['avg'], $avgnum);
     # echo "   <tfoot>\n";
     echo "   <tbody>\n";
     echo "    <tr class=\"total hslice sortbottom\" id=\"totaltr\">\n";
     echo "     <td class=\"total entry-title\">".htmlentities($LOCALE['total'])."</td>\n";
     echo "     <td class=\"cost entry-content\" id=\"summarytotal\" title=\"$avgtext\">".
-         str_replace('.', ',', $total)."</td>\n";
-    echo "     <td class=\"perc\">".str_replace('.', ',', $total_perc).
+         format_amount($total)."</td>\n";
+    echo "     <td class=\"perc\">".format_amount($total_perc).
          "</td>\n";
     echo "     <td class=\"img\">&nbsp;</td>\n";
     echo "    </tr>\n";
@@ -579,7 +585,7 @@ EO2;
         $tmp = sprintf('%.2f', $diff);
         $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\">".
            "<a href=\"$link\" title=\"$title\">".
-           str_replace('.', ',', $tmp)."</a>".
+           format_amount($tmp)."</a>".
            "</td>";
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
@@ -605,7 +611,7 @@ EO2;
       $tmp = sprintf('%.2f', $diff);
       $trow .= "<td class=\"year $plusminus\" headers=\"by$y btotal\">".
            "<a href=\"$link\" title=\"$title\">".
-           str_replace('.', ',', $tmp)."</a></td>";
+           format_amount($tmp)."</a></td>";
       $trow .= "</tr>\n";
       if (!$allmissed) {
         echo $trow;
@@ -649,7 +655,7 @@ EO2;
       foreach ($targets as $targ) {
        echo "      <option value=\"$targ[id]\"".
             ($targ['id'] == $attrs['bmto'] ? ' selected="selected"' : '').
-            ">".htmlentities($targ['config']['title'])."</option>\n";
+            ">".htmlentities($targ['config']['title'], ENT_QUOTES, 'UTF-8')."</option>\n";
       }
       echo "     </select>\n";
       echo "     ".form_input('', htmlentities($LOCALE['show']), 'submit')."\n";
@@ -668,11 +674,11 @@ EO2;
       return;
     }
     echo "   <h3>$span: <span title=\"".htmlentities($LOCALE['owntot'])."\">".
-         str_replace('.', ',', sprintf('%.2f', $total)).
+         format_amount(sprintf('%.2f', $total)).
          "</span> &minus;  <span title=\"".htmlentities($LOCALE['avgtot'])."\">".
-         str_replace('.', ',', sprintf('%.2f', $bmark)).
+         format_amount(sprintf('%.2f', $bmark)).
          "</span> = <span class=\"$plusminus\">".
-         str_replace('.', ',', sprintf('%.2f', $diff)).
+         format_amount(sprintf('%.2f', $diff)).
          " &euro;</span></h3>\n";
     $cats = $cc->getCats();
     $w = 640;
@@ -682,7 +688,7 @@ EO2;
     $u = (($max != 0) ? (100/$max) : 0);
     $attrs = $query;
     $attrs['view'] = 'details';
-    while (list($catid, $cat) = each($cats)) {
+    foreach($cats as $catid => $cat) {
       $attrs['type'] = $cat->id;
       $tota = $e->getTotal($attrs);
       $battrs = $attrs;
@@ -695,9 +701,9 @@ EO2;
       if (($tota == 0) || ($totb == 0)) {
         $plusminus = '666666';
       }
-      # $tota = str_replace('.', ',', $tota);
-      # $totb = str_replace('.', ',', $totb);
-      # $diff = str_replace('.', ',', $diff);
+      # $tota = format_amount($tota);
+      # $totb = format_amount($totb);
+      # $diff = format_amount($diff);
       $catn = $cc->getCatName($cat->id, $attrs['lang']);
       # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
       $color = str_replace('#', '', $cat->color);
@@ -714,7 +720,7 @@ EO2;
       $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
       $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
       $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
-      $imgsrc = "http://chart.apis.google.com/chart?chs=${w}x${h}".
+      $imgsrc = "https://chart.apis.google.com/chart?chs=${w}x${h}".
                 "&amp;cht=bhg".
                 "&amp;chbh=$bh".
                 "&amp;chco=000099,666666&amp;chts=000000,10".
@@ -781,13 +787,13 @@ EO2;
     echo "   <tr><th>".htmlentities($LOCALE['cat'])."</th><th>".
          htmlentities(ucfirst($LOCALE['owntot']))."</th><th>".htmlentities(ucfirst($LOCALE['avgtot']))."</th><th>".htmlentities(ucfirst($LOCALE['diff']))."</th></tr>\n";
     $endrow = "   <tr class=\"total\"><th>".htmlentities(ucfirst($LOCALE['total']))."</th><td>".
-              str_replace('.', ',', sprintf('%.2f', $total)).
+              format_amount(sprintf('%.2f', $total)).
               "</td><td>".
-              str_replace('.', ',', sprintf('%.2f', $bmark)).
+              format_amount(sprintf('%.2f', $bmark)).
               "</td><td class=\"$plusminus\">".
-              str_replace('.', ',', sprintf('%.2f', $diff)).
+              format_amount(sprintf('%.2f', $diff)).
               "</td></tr>\n";
-    while (list($catid, $cat) = each($cats)) {
+    foreach($cats as $catid => $cat) {
       $attrs['type'] = $cat->id;
       $tota = $e->getTotal($attrs);
       $battrs = $attrs;
@@ -800,9 +806,9 @@ EO2;
       if ((($tota == 0) && ($totb == 0)) || ($tota == $totb)) {
         $plusminus = 'even';
       }
-      # $tota = str_replace('.', ',', $tota);
-      # $totb = str_replace('.', ',', $totb);
-      # $diff = str_replace('.', ',', $diff);
+      # $tota = format_amount($tota);
+      # $totb = format_amount($totb);
+      # $diff = format_amount($diff);
       $catn = $cc->getCatName($cat->id, $attrs['lang']);
       # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
       $color = str_replace('#', '', $cat->color);
@@ -819,7 +825,7 @@ EO2;
       $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
       $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
       $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
-      $imgsrc = "http://chart.apis.google.com/chart?chs=${w}x${h}".
+      $imgsrc = "https://chart.apis.google.com/chart?chs=${w}x${h}".
                 "&amp;cht=bhg".
                 "&amp;chbh=$bh".
                 "&amp;chco=000099,666666&amp;chts=000000,10".
@@ -894,7 +900,7 @@ EOH;
         $columns[$sub->id] = array($i+1, $name);
       }
     }
-    while (list($id, $values) = each($columns)) {
+    foreach($columns as $id => $values) {
       # $label = $id." ".substr($values[1], 0, 4);
       $label = $values[1];
       echo "    data.addColumn('number', '$label');\n";
@@ -949,7 +955,7 @@ EOH;
       $midday = ($m == 1) ? 14 : 15;
       $values = "    data.addRow([new Date($y, $m, $midday)";
       reset($columns);
-      while (list($id, $data) = each($columns)) {
+      foreach($columns as $id => $data) {
         $values .= sprintf(", %.2f", $tmpdata[$id][2]);
       }
       $values .= "]);\n";
@@ -1032,12 +1038,12 @@ EOF;
         $attrs['from'] = mktime(0, 0, 0, $m, 1, $y);
         $attrs['to'] = mktime(0, 0, 0, $m+1, 1, $y)-1;
         $atot = $e->getTotal($attrs);
-        echo str_replace('.', ',', sprintf('%.2f', $atot)).$sep;
+        echo format_amount(sprintf('%.2f', $atot)).$sep;
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
       $attrs['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
       $atot = $e->getTotal($attrs);
-      echo str_replace('.', ',', sprintf('%.2f', $atot)).$eol;
+      echo format_amount(sprintf('%.2f', $atot)).$eol;
     }
   }
 
@@ -1072,6 +1078,52 @@ EOF;
         echo $y.$sep.$m.$sep.$cost.$sep.$type.$sep.$name.$eol;
       }
     }
+  }
+
+  function exportJSON(&$e, &$cc, &$query, $level='type') {
+    $LOCALE = $GLOBALS['LOCALE'];
+    $CONFIG = $GLOBALS['CONFIG'];
+
+    $i = isset($query['from']) ? $query['from'] : $e->getFirstDate();
+    $last = isset($query['to']) ? $query['to'] : $e->getLastDate();
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json');
+    $json = array();
+    echo '[';
+    $started = false;
+    while ($i <= $last) {
+      $attrs = $query; // new copy
+      $attrs['from'] = $i;
+      $datestring = date('Y-m-d', $i);
+      $i = mktime(0, 0, 0, date('m', $i), date('d', $i)+1, date('Y', $i));
+      $attrs['to'] = $i-1;
+      $attrs['group'] = $level;
+      $attrs['order'] = 'type';
+      $attrs['prev'] = 'date';
+      $prods = $e->getSummary($attrs);
+      $cats = array();
+      while ($row = db_fetch_row($prods)) {
+        if ($row['cost']) {
+	  $cat = substr($row['type'], 0, 2);
+          $values = array(
+	    'date' => $datestring,
+	    'c' => intval($cat),
+            'category' => $cc->getCatName($cat, $query['lang']),
+	    'cost' => floatval(sprintf("%.2f", $row['cost']))
+          );
+	  if ($level != 'cat') {
+	    $values['t'] = floatval($row['type']);
+	    $values['type'] = $cc->getSubName($row['type'], $query['lang']);
+	  }
+	  $cats[] = $values;
+	}
+      }
+      if (count($cats)) {
+        echo ($started ? ',' : '').json_encode($cats);
+	$started = true;
+      }
+    }
+    echo ']';
   }
 
   function timeline(&$e, &$cc, $query) {
@@ -1181,7 +1233,7 @@ EOF;
       }
 
       $date = date('d.m.y', $i);
-      $alt = str_replace('.', ',', $cost);
+      $alt = format_amount($cost);
 
       $attrs = $query;
       $attrs['from'] = $i;
@@ -1377,7 +1429,7 @@ EOS;
       $array['cat'] = (isset($array['cat']) ? $array['cat'] :
                        substr($array['type'], 0, 2));
     }
-    while (list($key, $value) = each($array)) {
+    foreach($array as $key => $value) {
       ++$count;
       $url .= urlencode($key)."=".urlencode($value);
       if ($count < count($array)) {
@@ -1396,7 +1448,7 @@ EOS;
       $array['cat'] = (isset($array['cat']) ? $array['cat'] :
                        substr($array['type'], 0, 2));
     }
-    while (list($key, $value) = each($array)) {
+    foreach($array as $key => $value) {
       $inputs .= form_input($key, $value, 'hidden', NULL, NULL, NULL, $form);
     }
     return $inputs;
@@ -1467,4 +1519,11 @@ EOS;
     return $retvalues;
   }
 
+  function format_amount($num) {
+    list($whole, $fract) = explode('.', $num);
+    $parts = str_split(strrev($whole), 3);
+    $padded = strrev(join(';9328#&', $parts)); // entity code reversed!
+    return $padded.','.$fract;
+  }
+  
 ?>
