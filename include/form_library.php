@@ -4,8 +4,8 @@
   // see function make_id to see how these are used
   $FORMS['id_allowed_chars'] = 'a-zA-Z0-9_';
   $FORMS['id_join_string'] = '__';
-  $FORMS['id_escape_start'] = "'E'";
-  $FORMS['id_escape_end'] = "'E'";
+  $FORMS['id_escape_start'] = 'E';
+  $FORMS['id_escape_end'] = 'E';
   $GLOBALS['FORMS'] = $FORMS;
 
   function form_start($action,
@@ -267,24 +267,26 @@
   function make_id($name, $value=NULL, $form=NULL) {
     $FORMS = $GLOBALS['FORMS'];
     # $search = "/([^$FORMS[id_allowed_chars]])/e";
+    $search = "/([^$FORMS[id_allowed_chars]])/";
     # $replace = $FORMS['id_escape_start'].".ord('\\1').".
     #            $FORMS['id_escape_end'];
-    $search = "/([^$FORMS[id_allowed_chars]])/";
     if ($form) {
      $name = $form.$FORMS['id_join_string'].$name;
     }
     # $id = preg_replace($search, $replace, $name);
-    $id = preg_replace_callback(
-            $search,
-            'form_param_replace',
-            $name);
+    $id =  preg_replace_callback(
+      $search,
+      'form_param_replace',
+      $name
+    );
     if (!is_null($value)) {
       $id .= $FORMS['id_join_string'].
-        preg_replace_callback(
-          $search,
-          'form_param_replace',
-          $value
-        );
+      #        preg_replace($search, $replace, $value);
+      preg_replace_callback(
+        $search,
+        'form_param_replace',
+        $value
+      );
     }
     return $id;
   }
@@ -292,8 +294,9 @@
   function form_param_replace($matches) {
     global $FORMS; 
     return $FORMS['id_escape_start'].
-           ".ord('\\1').".
-           $FORMS['id_escape_end'];
+      mb_ord('\\1').
+      $FORMS['id_escape_end'];
   }
+
 
 ?>
