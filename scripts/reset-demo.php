@@ -88,7 +88,7 @@
      continue;
     }
     $statquery['type'] = $cat->id;
-    $subs =& $cat->getSubs();
+    $subs = $cat->getSubs();
     for ($j=0; $j<count($subs); $j++) {
       $sub =& $subs[$j];
       $limits = $typelimits[$sub->id];

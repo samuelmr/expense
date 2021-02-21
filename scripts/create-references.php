@@ -13,15 +13,16 @@
 
  $cc = new Coicop();
 
- $lastvaluesurl = 'http://pxnet2.stat.fi/PXWeb/sq/f9e857be-ee6f-4430-ae4e-34cb1ac93e0b';
-
+ # $lastvaluesurl = 'https://pxnet2.stat.fi/PXWeb/sq/f9e857be-ee6f-4430-ae4e-34cb1ac93e0b';
+ $lastvaluesurl = 'https://pxnet2.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
+ 
 /*
  // http://pxnet2.stat.fi/PXWeb/pxweb/fi/StatFin/StatFin__tul__ktutk/statfin_ktutk_pxt_001.px/table/tableViewLayout1/?rxid=b26cdefd-29c7-4721-b05a-fec60145ee6f
- $index2000url = 'http://pxnet2.stat.fi/PXWeb/sq/c0db653c-b549-49d8-ba9d-c79b9ae5c2aa';
- $index2005url = 'http://pxnet2.stat.fi/PXWeb/sq/772f1db4-1db4-4b9b-b0b4-d3ea792c6776';
- # $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/36cb1acc-00dc-4e43-a0b6-a420de52012d';
- $index2010url = 'http://pxnet2.stat.fi/PXWeb/sq/5627568e-eb4d-4d71-b972-9de5cadeaa6a';
- $index2015url = 'http://pxnet2.stat.fi/PXWeb/sq/222b2737-c9c2-4cba-8983-a0f508b6d0ca';
+ $index2000url = 'https://pxnet2.stat.fi/PXWeb/sq/c0db653c-b549-49d8-ba9d-c79b9ae5c2aa';
+ $index2005url = 'https://pxnet2.stat.fi/PXWeb/sq/772f1db4-1db4-4b9b-b0b4-d3ea792c6776';
+ # $index2010url = 'https://pxnet2.stat.fi/PXWeb/sq/36cb1acc-00dc-4e43-a0b6-a420de52012d';
+ $index2010url = 'https://pxnet2.stat.fi/PXWeb/sq/5627568e-eb4d-4d71-b972-9de5cadeaa6a';
+ $index2015url = 'https://pxnet2.stat.fi/PXWeb/sq/222b2737-c9c2-4cba-8983-a0f508b6d0ca';
 
  $indexes = array();
  $remember = array();
@@ -51,11 +52,12 @@
  - http://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3
 */
 
- $index2000Url = 'http://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
- $index2005Url = 'http://pxnet2.stat.fi/PXWeb/sq/d2b511c2-f662-4e2b-9090-736c93960a4e';
- $index2010Url = 'http://pxnet2.stat.fi/PXWeb/sq/43f0c885-e7ce-4528-9c02-e72935e3a661';
- $index2015Url = 'http://pxnet2.stat.fi/PXWeb/sq/ae3cfa79-72a6-439a-ad25-f5acc0c85b66';
- 
+ $index2000Url = 'https://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
+ $index2005Url = 'https://pxnet2.stat.fi/PXWeb/sq/d2b511c2-f662-4e2b-9090-736c93960a4e';
+ $index2010Url = 'https://pxnet2.stat.fi/PXWeb/sq/43f0c885-e7ce-4528-9c02-e72935e3a661';
+ $index2015Url = 'https://pxnet2.stat.fi/PXWeb/sq/ae3cfa79-72a6-439a-ad25-f5acc0c85b66';
+
+
  $jsonstat = array();
  $jsonstat["2000"] = JSONstat($index2000Url);
  $jsonstat["2005"] = JSONstat($index2005Url);
@@ -208,7 +210,7 @@ function getIndexJson($url) {
    }
   }
 
-  $years = array(2001, 2006, 2012);
+  $years = array(2001, 2006, 2012, 2016);
   // $response = getpx($params);
   $response = http_get($lastvaluesurl);
   if ($DEBUG) {
@@ -414,8 +416,8 @@ function getIndexJson($url) {
      $t = "$a $s - minimibudjetti";
      $key++;
      $value = str_replace(',', '.', $csv[$key]);
-     if ($DEBUG >= 2) {
-      echo "$type, $desc, $value, $y\n";
+     if ($DEBUG > 2) {
+      echo "$type, $desc, $value, $y, $a, $s\n";
      }
      if (!is_numeric($value) || ($value == 0)) {
       continue;
@@ -450,8 +452,8 @@ function getIndexJson($url) {
      $t = "$a $s - minimibudjetti";
      $key++;
      $value = str_replace(',', '.', $csv[$key]);
-     if ($DEBUG >= 2) {
-      echo "$type, $desc, $value, $y\n";
+     if ($DEBUG > 2) {
+      echo "$type, $desc, $value, $y, $a, $s\n";
      }
      if (!is_numeric($value) || ($value == 0)) {
       continue;
@@ -485,8 +487,8 @@ function getIndexJson($url) {
      $t = "$a $s - minimibudjetti";
      $key++;
      $value = str_replace(',', '.', $csv[$key]);
-     if ($DEBUG >= 2) {
-      echo "$type, $desc, $value, $y\n";
+     if ($DEBUG > 2) {
+      echo "$type, $desc, $value, $y, $a, $s\n";
      }
      if (!is_numeric($value) || ($value == 0)) {
       continue;
@@ -517,6 +519,12 @@ function getIndexJson($url) {
    // kulutustutkimus 2012
    $baseindex = getYearIndex($y, $type);
    $ystart = 2012;
+   $yend = 2015;
+  }
+  elseif ($y == 2016) {
+   // kulutustutkimus 2016
+   $baseindex = getYearIndex($y, $type);
+   $ystart = 2016;
    $yend = date('Y');
   }
   elseif ($y == 2009) {
@@ -546,6 +554,9 @@ function getIndexJson($url) {
   else {
    trigger_error("Unknown year $y!", E_USER_ERROR);
   }
+  if ($DEBUG) {
+    # echo "Using index $y from $ystart to $yend\n";
+  }
   for ($iy = $ystart; $iy <= $yend; $iy++) {
    for ($im=1; $im<=12; $im++) {
     if (($iy == date('Y')) && ($im >= date('n'))) {
@@ -573,7 +584,7 @@ function getIndexJson($url) {
     if ($baseindex && $currentindex) {
      $indexed = ($value)/$baseindex*$currentindex;
      if ($DEBUG > 1) {
-      # echo "[".$handle->user."] $iy $im $type: $value => $indexed ($baseindex, $currentindex)\n";
+      echo "[".$handle->user."] $iy $im $type: $value => $indexed ($baseindex, $currentindex)\n";
      }
      # $fmt = '%s (%.2f / %.2f * %.2f)';
      # $prodstr = sprintf($fmt, $desc, ($value), $baseindex, $currentindex);
@@ -590,6 +601,9 @@ function getIndexJson($url) {
      if ($handle->addProduct($values)) {
       # var_dump($values);
      }
+    }
+    else {
+     echo "Either baseindex ($baseindex) or currentindex ($currentindex) is missing for $desc at $iy-$im\n";
     }
    }
   }
@@ -847,10 +861,15 @@ EOS;
   $config = array('user_id' => $i,
                   'title' => $desc,
                   'lang' => $lang,
-                  'product_table' => "expense2_user$i");
+                  'product_table' => "expense2_user$i",
+                  'force_query' => "",
+                  'read_only' => 1);
   # print_r($config);
   if (db_replace($config_table, $config)) {
    ++$ok;
+  }
+  else {
+    echo "Couldn't update config for user $i\n";
   }
   if ($ok == 3) {
    return($i);
