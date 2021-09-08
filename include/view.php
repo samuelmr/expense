@@ -54,24 +54,22 @@
         $query['to'] = mktime(0, 0, 0, $m+1, 1, $y)-1;
         $urlattrs = attrs2url($query);
         $link = "./?$urlattrs";
-        $tmp = sprintf('%.2f', $e->getTotal($query));
         $title = htmlentities($LOCALE['months'][$m])." $y";
         echo "<td class=\"month\" headers=\"y$y m$m\">".
            "<a href=\"$link\" title=\"".
            htmlentities($LOCALE['showonly']).
            " $title\">".
-           format_amount($tmp)."</a>".
+           number_format($e->getTotal($query), 2, ',', ' ')."</a>".
            "</td>";
       }
       $query['from'] = mktime(0, 0, 0, 1, 1, $y);
       $query['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
       $urlattrs = attrs2url($query);
       $link = "./?$urlattrs";
-      $tmp = sprintf('%.2f', $e->getTotal($query));
       $title = htmlentities($LOCALE['total'])." $y";
       echo "<td class=\"year\" headers=\"y$y total\">".
            "<a href=\"$link\" title=\"$title\">".
-           format_amount($tmp)."</a></td>";
+           number_format($e->getTotal($query), 2, ',', ' ')."</a></td>";
       echo "</tr>\n";
     }
     echo "   </tbody>\n  </table>\n";
@@ -146,7 +144,7 @@
       $attrs['to'] = strtotime($row['date']);
       $dateurl = attrs2url($attrs);
       $datehint = htmlentities("$LOCALE[showonly] $date");
-      $cost = sprintf("%.2f", $row['cost']);
+      $cost = $row['cost'];
       $prod = $row['prod'];
       $type = $cc->getSubName($row['type'], $query['lang']);
       $oa = $row['other'];
@@ -155,9 +153,8 @@
       $attrs['type'] = $row['type'];
       $urlattrs = attrs2url($attrs);
       $hint = htmlentities("$LOCALE[showonly] $type");
-      $p = ($total > 0) ? (round($row['cost']/$total, 4)) : 0;
+      $p = ($total > 0) ? (round($cost/$total, 4)) : 0;
       $total_perc += $p;
-      $perc = sprintf("%.02f&nbsp;%%", 100 * $p);
       echo "    <tr>\n";
       echo "     <td class=\"date\">".
            "<a title=\"$datehint\" href=\"?$dateurl\">".
@@ -165,8 +162,8 @@
            "</a>".
            "</td>\n";
       echo "     <td class=\"cost\"".($oa ? " title=\"$oa $oc\"" : "").">".
-           format_amount($cost)."</td>\n";
-      echo "     <td class=\"perc\">".format_amount($perc)."</td>\n";
+           number_format($cost, 2, ',', ' ')."</td>\n";
+      echo "     <td class=\"perc\">".number_format(100 * $p, 2, ',', ' ')."</td>\n";
       echo "     <td class=\"type\">".
            "<a href=\"?$urlattrs\" title=\"$hint\">".
            htmlentities($type)."</a></td>\n";
@@ -212,16 +209,14 @@
     }
     db_free_result($prods);
     echo "   </tbody>\n";
-    $total = sprintf("%.2f", $e->getTotal($query));
-    $total_perc = sprintf("%.02f&nbsp;%%", 100 * $total_perc);
     # echo "   <tfoot>\n";
     echo "   <tbody>\n";
     echo "    <tr class=\"total sortbottom\">\n";
     echo "     <td class=\"total\">".htmlentities($LOCALE['total'])."</td>\n";
     echo "     <td class=\"cost\" id=\"currenttotal\">".
-         format_amount($total)."</td>\n";
-    echo "     <td class=\"perc\">".format_amount($total_perc).
-         "</td>\n";
+         number_format($e->getTotal($query), 2, ',', ' ')."</td>\n";
+    echo "     <td class=\"perc\">".number_format(100 * $total_perc, 2, ',', ' ').
+         "&nbsp;%</td>\n";
     echo "     <td class=\"type\" colspan=\"2\">&nbsp;</td>\n";
     # echo "     <td class=\"edit\">&nbsp;</td>\n";
     echo "    </tr>\n";
@@ -405,7 +400,7 @@ EO2;
       echo "    <tr>";
       echo "     <td class=\"date\">$date</td>\n";
       echo "     <td class=\"cost\"".($oa ? " title=\"$oa $oc\"" : "").">".
-           format_amount($cost)."</td>\n";
+           number_format($cost, 2, ',', ' ')."</td>\n";
       echo "     <td class=\"type\">".htmlentities($type)."</td>\n";
       echo "     <td class=\"desc\">".
            "<a target=\"insWin\" class=\"modify\"".
@@ -484,7 +479,6 @@ EO2;
       $urlattrs = attrs2url($attrs);
       $p = ($total > 0) ? (round($row['cost']/$total, 4)) : 0;
       $total_perc += $p;
-      $perc = sprintf("%.02f&nbsp;%%", 100 * $p);
       $w = ceil($cost * $w_unit);
       $alt = str_repeat('*', (100 * $p));
       if (($w/$maxw) < 0.25) {
@@ -506,26 +500,23 @@ EO2;
       echo "     <td class=\"type\">".
            "<a href=\"./?$urlattrs\" title=\"$hint\">".
            htmlentities($type)."</a></td>\n";
-      echo "     <td class=\"cost\">".format_amount($cost)."</td>\n";
-      echo "     <td class=\"perc\">".format_amount($perc)."</td>\n";
+      echo "     <td class=\"cost\">".number_format($cost, 2, ',', ' ')."</td>\n";
+      echo "     <td class=\"perc\">".number_format(100 * $p, 2, ',', ' ')."&nbsp;%</td>\n";
       echo "     <td class=\"img\">".
              "<a href=\"./?$urlattrs\" title=\"$hint\">$img</a></td>\n";
       echo "    </tr>\n";
     }
     db_free_result($prods);
     echo "   </tbody>\n";
-    $total = sprintf("%.2f", $e->getTotal($query));
-    $total_perc = sprintf("%.02f&nbsp;%%", 100 * $total_perc);
-    $avgnum = format_amount(sprintf('%.02f', $avg));
-    $avgtext = sprintf($LOCALE['avg'], $avgnum);
+    $avgtext = sprintf($LOCALE['avg'], number_format($avg, 2, ',', ' '));
     # echo "   <tfoot>\n";
     echo "   <tbody>\n";
     echo "    <tr class=\"total hslice sortbottom\" id=\"totaltr\">\n";
     echo "     <td class=\"total entry-title\">".htmlentities($LOCALE['total'])."</td>\n";
     echo "     <td class=\"cost entry-content\" id=\"summarytotal\" title=\"$avgtext\">".
-         format_amount($total)."</td>\n";
-    echo "     <td class=\"perc\">".format_amount($total_perc).
-         "</td>\n";
+         number_format($e->getTotal($query), 2, ',', ' ')."</td>\n";
+    echo "     <td class=\"perc\">".number_format(100 * $total_perc, 2, ',', ' ').
+         "&nbsp;%</td>\n";
     echo "     <td class=\"img\">&nbsp;</td>\n";
     echo "    </tr>\n";
     # echo "   </tfoot>\n";
@@ -582,11 +573,9 @@ EO2;
         elseif ($allmissed && ($atot || $btot)) {
           $allmissed = FALSE;
         }
-        $tmp = sprintf('%.2f', $diff);
         $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\">".
            "<a href=\"$link\" title=\"$title\">".
-           format_amount($tmp)."</a>".
-           "</td>";
+           number_format($diff, 2, ',', ' ')."</a></td>";
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
       $attrs['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
@@ -608,10 +597,9 @@ EO2;
         }
         $plusminus = 'miss';
       }
-      $tmp = sprintf('%.2f', $diff);
       $trow .= "<td class=\"year $plusminus\" headers=\"by$y btotal\">".
            "<a href=\"$link\" title=\"$title\">".
-           format_amount($tmp)."</a></td>";
+           number_format($diff, 2, ',', ' ')."</a></td>";
       $trow .= "</tr>\n";
       if (!$allmissed) {
         echo $trow;
@@ -630,7 +618,7 @@ EO2;
     $total_perc = 0;
     // copy; may be modified
     $attrs = $query;
-    $span = date('j.n.Y', $attrs['from'])." - ".date('j.n.Y', $attrs['to']);
+    $span = date('j.n.Y', $attrs['from'])."&ndash;".date('j.n.Y', $attrs['to']);
     # $urlattrs = attrs2url($attrs);
     $total = $e->getTotal($attrs);
     $battrs = $attrs;
@@ -674,12 +662,12 @@ EO2;
       return;
     }
     echo "   <h3>$span: <span title=\"".htmlentities($LOCALE['owntot'])."\">".
-         format_amount(sprintf('%.2f', $total)).
+         number_format($total, 2, ',', ' ')."&nbsp;&euro;".
          "</span> &minus;  <span title=\"".htmlentities($LOCALE['avgtot'])."\">".
-         format_amount(sprintf('%.2f', $bmark)).
+         number_format($bmark, 2, ',', ' ')."&nbsp;&euro;".
          "</span> = <span class=\"$plusminus\">".
-         format_amount(sprintf('%.2f', $diff)).
-         " &euro;</span></h3>\n";
+         number_format($diff, 2, ',', ' ')."&nbsp;&euro;".
+         "</span></h3>\n";
     $cats = $cc->getCats();
     $w = 640;
     $h = 27;
@@ -701,9 +689,6 @@ EO2;
       if (($tota == 0) || ($totb == 0)) {
         $plusminus = '666666';
       }
-      # $tota = format_amount($tota);
-      # $totb = format_amount($totb);
-      # $diff = format_amount($diff);
       $catn = $cc->getCatName($cat->id, $attrs['lang']);
       # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
       $color = str_replace('#', '', $cat->color);
@@ -787,11 +772,11 @@ EO2;
     echo "   <tr><th>".htmlentities($LOCALE['cat'])."</th><th>".
          htmlentities(ucfirst($LOCALE['owntot']))."</th><th>".htmlentities(ucfirst($LOCALE['avgtot']))."</th><th>".htmlentities(ucfirst($LOCALE['diff']))."</th></tr>\n";
     $endrow = "   <tr class=\"total\"><th>".htmlentities(ucfirst($LOCALE['total']))."</th><td>".
-              format_amount(sprintf('%.2f', $total)).
+              number_format($total, 2, ',', ' ').
               "</td><td>".
-              format_amount(sprintf('%.2f', $bmark)).
+              number_format($bmark, 2, ',', ' ').
               "</td><td class=\"$plusminus\">".
-              format_amount(sprintf('%.2f', $diff)).
+              number_format($diff, 2, ',', ' ').
               "</td></tr>\n";
     foreach($cats as $catid => $cat) {
       $attrs['type'] = $cat->id;
@@ -806,9 +791,6 @@ EO2;
       if ((($tota == 0) && ($totb == 0)) || ($tota == $totb)) {
         $plusminus = 'even';
       }
-      # $tota = format_amount($tota);
-      # $totb = format_amount($totb);
-      # $diff = format_amount($diff);
       $catn = $cc->getCatName($cat->id, $attrs['lang']);
       # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
       $color = str_replace('#', '', $cat->color);
@@ -1038,12 +1020,12 @@ EOF;
         $attrs['from'] = mktime(0, 0, 0, $m, 1, $y);
         $attrs['to'] = mktime(0, 0, 0, $m+1, 1, $y)-1;
         $atot = $e->getTotal($attrs);
-        echo format_amount(sprintf('%.2f', $atot)).$sep;
+        echo sprintf('%.2f', $atot).$sep;
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
       $attrs['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
       $atot = $e->getTotal($attrs);
-      echo format_amount(sprintf('%.2f', $atot)).$eol;
+      echo sprintf('%.2f', $atot).$eol;
     }
   }
 
@@ -1233,7 +1215,7 @@ EOF;
       }
 
       $date = date('d.m.y', $i);
-      $alt = format_amount($cost);
+      $alt = number_format($cost, 2, ',', ' ')."&nbsp;&euro;";
 
       $attrs = $query;
       $attrs['from'] = $i;
@@ -1517,13 +1499,6 @@ EOS;
     }
     $retvalues = array($object, $embed, $inline, $image);
     return $retvalues;
-  }
-
-  function format_amount($num) {
-    list($whole, $fract) = explode('.', $num);
-    $parts = str_split(strrev($whole), 3);
-    $padded = strrev(join(';9328#&', $parts)); // entity code reversed!
-    return $padded.','.$fract;
   }
   
 ?>
