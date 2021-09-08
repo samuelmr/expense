@@ -99,7 +99,7 @@
   function get_goto() {
     global $LOGIN;
     $goto_vars = array();
-    while(list($key, $value) = each($_REQUEST)) {
+    foreach($_REQUEST as $key => $value) {
       if ((!preg_match($LOGIN['regex'], $key)) &&
           ($key != session_name())) {
         if (is_array($value)) {
