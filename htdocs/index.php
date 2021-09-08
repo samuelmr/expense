@@ -1,5 +1,7 @@
 <?php
 
+  mb_internal_encoding("UTF-8");
+
   require_once('protect.php');
   require_once('include_library.php');
   require_once('form_library.php');
@@ -74,7 +76,11 @@ EOH;
   $cc = new Coicop;
   $e = new Expense($_SESSION['userid']);
 
-  if ($QUERY['view'] == 'export') {
+  if ($QUERY['view'] == 'json') {
+   exportJSON($e, $cc, $QUERY);
+   exit();
+  }
+  elseif ($QUERY['view'] == 'export') {
    $fn = $LOCALE['expense'].
          '_'.date('Ymd', $QUERY['from']).'-'.date('Ymd', $QUERY['to']).
          '.tsv';
@@ -88,10 +94,8 @@ EOH;
   // only load google stuff if needed?
   if (in_array($QUERY['view'], $views)) {
     $scripts .= <<<EOS
-  <script type="text/javascript" src="http://www.google.com/jsapi">
+  <script type="text/javascript" src="https://www.google.com/jsapi">
   </script>
-  <!-- script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false">
-  </script -->
   <script type="text/javascript">
    google.load("visualization", "1", {packages: ["annotatedtimeline"]});
   </script>
@@ -107,7 +111,7 @@ EOS;
   $svgtypes = array();
   $svgtypes = svg_support();
   if ($svgtypes[2]) {
-    $dtdtype = 'svg';
+    # $dtdtype = 'svg';
   }
 
   if (!$CONFIG['product_table']) {
@@ -118,6 +122,9 @@ EOS;
 
   $bmtargets = $e->getBenchmarkTargets();
   $QUERY['bmto'] = $QUERY['bmto'] ? $QUERY['bmto'] : $bmtargets[0]['id'];
+  # for ($i=0; $i<count($bmtargets); $i++) {
+  #   trigger_error($bmtargets[$i]['config']['title'], E_USER_NOTICE);
+  # }
 
   $headers .= prevnextlinks($QUERY, $e);
   $headers .= showhidedivs($QUERY);
@@ -162,7 +169,8 @@ EOS;
     $urlattrs = attrs2url($query);
     $insert_url = "./?$urlattrs";
     $linktext = htmlentities($LOCALE['insert']);
-    echo "  <h1 id=\"h1\">".htmlentities($LOCALE['expense'])."</a></h1>\n";
+    echo "  <h1 id=\"h1\">".
+         htmlentities($LOCALE['expense'])."</h1>\n";
     printErrors($GLOBALS['ERRORS']);
     echo "  <div class=\"notice\">\n   <p>";
     echo htmlentities($LOCALE['no_products']);
@@ -238,7 +246,8 @@ EOS;
       #   $QUERY['order'] = 'cost desc';
       # }
       echo "  <h1 id=\"h1\"><a href=\"./?init=&amp;lang=$QUERY[lang]\"".
-           " title=\"".htmlentities($LOCALE['defaults'])."\">".
+           # " title=\"".htmlentities($LOCALE['defaults'])."\">".
+           " title=\"".htmlentities($CONFIG['title'])."\">".
            htmlentities($LOCALE['expense'])."</a></h1>\n";
       form($cc, $QUERY);
       history($e, $QUERY);
