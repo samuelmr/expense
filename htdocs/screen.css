@@ -291,26 +291,31 @@ ul#links li a:active, ul#tabs li a:active {
 
 @media (min-height: 320px) {
  #plot {
-  min-height: 240px;
+  min-height: 300px;
  }
 }
 @media (min-height: 480px) {
  #plot {
-  min-height: 400px;
+  min-height: 460px;
  }
 }
 @media (min-height: 600px) {
  #plot {
-  min-height: 480px;
+  min-height: 580px;
  }
 }
 @media (min-height: 800px) {
  #plot {
-  min-height: 640px;
+  min-height: 780px;
  }
 }
 @media (min-height: 1080px) {
  #plot {
-  min-height: 800px;
+  min-height: 1060px;
+ }
+}
+@media (min-height: 1200px) {
+ #plot {
+  min-height: 1180px;
  }
 }
