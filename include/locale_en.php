@@ -86,5 +86,6 @@
   $LOCALE['login_choose'] = 'Choose a username and a password';
   $LOCALE['login_register'] = 'Register';
   $LOCALE['login_try'] = 'Try out the demo version';
+  $LOCALE['login_budgets'] = 'Browse reference data';
 
 ?>
