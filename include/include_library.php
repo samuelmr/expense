@@ -4,7 +4,7 @@
   $CONFIG['php_basedir'] = '/www/seuranta/kulutus/include';
   $CONFIG['error_basedir'] = '/www/seuranta/kulutus/htdocs/errors';
 
-  $INCLUDE = is_array($INCLUDE) ? $INCLUDE : array();
+  $INCLUDE = isset($INCLUDE) ? $INCLUDE : array();
   $INCLUDE['xhtml_ct'] = 'application/xhtml+xml';
   $INCLUDE['html_ct'] = 'text/html';
   $INCLUDE['dtd_transitional'] = 
@@ -45,7 +45,9 @@
 
   function content_negotiate($accept=NULL) {
     global $INCLUDE;
-    $accept = isset($accept) ? $accept : $_SERVER['HTTP_ACCEPT'];
+    if (!isset($accept) || !$accept) {
+      $accept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
+    }
     $types = explode(',', $accept);
     $tmp = array();
     $count = 0;
@@ -155,7 +157,8 @@ HEADMARKER
 
     if ($ga) {
       $gascript = <<<EOS
-  <script type="text/javascript">
+<!--
+<script type="text/javascript">
    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
   </script>
@@ -164,6 +167,7 @@ HEADMARKER
     var pageTracker = _gat._getTracker("$ga");
     pageTracker._trackPageview();
    } catch(err) {}</script>
+-->
 
 EOS;
     }
@@ -176,7 +180,7 @@ FOOTMARKER
   }
 
   function header_html5($title, $headers='', $doctype='<!DOCTYPE html>',
-                        $lang='fi', $charset='iso-8859-1',
+                        $lang='fi', $charset='UTF-8',
                         $bodyattrs=NULL, $headattrs=NULL, $id='seuranta.org') {
     global $INCLUDE;
     global $header_printed;
