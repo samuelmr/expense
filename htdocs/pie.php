@@ -26,7 +26,8 @@
   $e = new Expense($_SESSION['userid']);
 
   $urlattrs = attrs2url($query);
-  $charset = 'iso-8859-1';
+  # $charset = 'iso-8859-1';
+  $charset = 'UTF-8';
   $script = preg_replace('/\/[^\/]*$/', '', $_SERVER['REQUEST_URI']);
   $ssl = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : NULL;
   $mainscript = 'http'.($ssl ? 's' : '').'://'.
@@ -55,7 +56,7 @@
   $attrs['type'] = NULL;
   $attrs['group'] = NULL;
   $attrs['order'] = 'type';
-  $total = sprintf('%.2f', $e->getTotal($attrs));
+  $total = $e->getTotal($attrs);
 
   // measures for the pie
   $radius = $config['pie_h'] / 2.5;
@@ -80,13 +81,15 @@
     $color = $cat->color;
     $name = (($query['lang'] == 'fi') ? $cat->nameFi : $cat->nameEn);
     $attrs['type'] = $cat->id;
-    $cost = sprintf('%.2f', $e->getTotal($attrs));
+    $cost = $e->getTotal($attrs);
     $urlattrs = attrs2url($attrs);
     $percent = ($total > 0) ? ($cost / $total) : 0;
-    $title = sprintf("%s: %.02f (%.02f %%)",
-                     $name, round($cost, 2), (100 * $percent));
-    $title = htmlentities_numeric(&$title);
-    $hint = htmlentities_numeric($locale['showonly']." ".$name);
+    # $title = sprintf("%s: %.02f (%.02f %%)",
+    #                  $name, round($cost, 2), (100 * $percent));
+    $title = "$name: ".number_format($cost, 2, ',', ' ')." € (".number_format($percent, 2, ',', ' ')." %)";
+    # $title = htmlentities_numeric($title);
+    # $hint = htmlentities_numeric($locale['showonly']." ".$name);
+    $hint = $locale['showonly']." ".$name;
 
     $text_x = ($legend_x+$line_height+4);
     $text_y = ($legend_y+$line_height-2);
@@ -156,7 +159,7 @@ EO2;
 EO3;
   }
   $svg_contents = <<<EOS
-<svg id="piesvg" version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%" viewBox="0 0 $config[pie_w] $config[pie_h]" preserveAspectRatio="xMidYMid">
+<svg id="piesvg" version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><!-- width="100%" height="100%" viewBox="0 0 $config[pie_w] $config[pie_h]" preserveAspectRatio="xMidYMid" -->
  <defs>
   <style type="text/css">
    svg, g {
