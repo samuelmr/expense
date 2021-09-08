@@ -2,6 +2,7 @@
 
   require_once('include_library.php');
   require_once('config.php');
+  require_once('Expense.php');
 
   $QUERY = getQuery($_REQUEST);
   $CONFIG = getConfig($_SESSION, $QUERY);
@@ -26,8 +27,8 @@ EOS
   # var_dump($LOCALE);
   # echo "</pre>\n";
 
-  $goto = isset($goto) ? $goto : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-  if (count($GLOBALS['ERRORS']) > 0) {
+  $goto = isset($goto) ? $goto : 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+  if (isset($GLOBALS['ERRORS']) && (count($GLOBALS['ERRORS']) > 0)) {
     for ($i=0; $i<count($GLOBALS['ERRORS']); $i++) {
       list($str, $class, $file, $line) = $GLOBALS['ERRORS'][$i];
       if ($class != 'notice') {
@@ -39,8 +40,10 @@ EOS
   echo "  <div".(isset($_REQUEST['message']) ? ' class="warning"' : '').">".
        htmlentities($message)."</div>\n";
 
+  if (isset($go)) {
+    echo "  <h2>".htmlentities($go)."</h2>\n";
+  }
 ?>
-  <h2><?php echo htmlentities($go); ?></h2>
   <form action="<?php echo htmlentities($goto); ?>" method="post" id="loginform">
   <table>
    <caption><?php echo htmlentities($locale['login_prompt']); ?></caption>
@@ -109,6 +112,22 @@ EOS
   <h2><?php echo htmlentities($locale['login_try']); ?></h2>
   <p><a href="/?login_username=demo&amp;login_password=demo&amp;lang=fi"><?php echo htmlentities($locale['login_go']); ?></a></p>
 
+  <h2><?php echo htmlentities($locale['login_budgets']); ?></h2>
+<?php
+  $e = new Expense(0);
+  $bmtargets = $e->getBenchmarkTargets();
+  for ($i=0; $i<count($bmtargets); $i++) {
+   $userid = $bmtargets[$i]['id'];
+   $budgettype = $bmtargets[$i]['config']['title'];
+   $username = $bmtargets[$i]['config']['user_name'];
+   $source = $bmtargets[$i]['config']['source'];
+   $url = $bmtargets[$i]['config']['url'];
+   $password = $username;
+?>
+  <p><a href="/?login_username=<?php echo htmlentities($username); ?>&amp;login_password=<?php echo htmlentities($password); ?>&amp;lang=fi"><?php echo htmlentities($budgettype); ?></a> (<a href="<?php echo htmlentities($url); ?>"><?php echo htmlentities($source); ?></a>)</p>
+<?php
+  }
+?>
 <?php
   echo footer_plain('UA-4404005-8');
 ?>
