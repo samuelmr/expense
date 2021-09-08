@@ -121,7 +121,7 @@ EOS;
     }
   }
 
-  $goto = isset($goto) ? $goto : 'http://'.$_SERVER['HTTP_HOST']."/";
+  $goto = isset($goto) ? $goto : 'https://'.$_SERVER['HTTP_HOST']."/";
   if (isset($message)) {
     $goto .= "?message=".urlencode($message);
   }
