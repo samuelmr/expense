@@ -2,8 +2,11 @@
 
   function attrs2db($array) {
     $conf = $GLOBALS['CONFIG'];
-    if (!isset($conf['qsepr'])) {
-     $conf['qsepr'] = '|';
+    if (!isset($conf['qorsepr'])) {
+     $conf['qorsepr'] = '|';
+    }
+    if (!isset($conf['qandsepr'])) {
+     $conf['qandsepr'] = '&';
     }
     $sql = '';
     $where = array();
@@ -29,9 +32,17 @@
       $where[] = "(prod LIKE '%".db_escape_string($conf['force_query'])."%')";
     }
     if (isset($array['prod']) && $array['prod']) {
-      $items = explode($conf['qsepr'], db_escape_string($array['prod']));
-      $where[] = "(prod LIKE '%".join("%' OR prod LIKE '%", $items)."%')";
       # $where[] = "MATCH(prod) AGAINST '".db_escape_string($array['prod'])."'";
+      if (stristr($array['prod'], $conf['qorsepr'])) {
+        $items = explode($conf['qorsepr'], db_escape_string($array['prod']));
+        $items = array_map('trim', $items);
+        $where[] = "(prod LIKE '%".join("%' OR prod LIKE '%", $items)."%')";
+      }
+      elseif (stristr($array['prod'], $conf['qandsepr'])) {
+        $items = explode($conf['qandsepr'], db_escape_string($array['prod']));
+        $items = array_map('trim', $items);
+        $where[] = "(prod LIKE '%".join("%' AND prod LIKE '%", $items)."%')";
+      }
     }
     if (count($where) > 0) {
       $sql .= "\nWHERE ".join(' AND ', $where);

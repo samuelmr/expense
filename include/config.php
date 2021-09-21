@@ -110,7 +110,8 @@
       $conf['ver_75'] = "$imgdir/vert.gif";
       $conf['ver_50'] = "$imgdir/vert.gif";
       $conf['ver_25'] = "$imgdir/vert.gif";
-      $conf['qsepr'] = '|';
+      $conf['qorsepr'] = '|';
+      $conf['qandsepr'] = '&';
       $sess['expense_config'] = $conf;
     }
     return $conf;
