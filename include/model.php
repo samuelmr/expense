@@ -43,6 +43,9 @@
         $items = array_map('trim', $items);
         $where[] = "(prod LIKE '%".join("%' AND prod LIKE '%", $items)."%')";
       }
+      else {
+        $where[] = "(prod LIKE '%".db_escape_string($array['prod'])."%')";
+      }
     }
     if (count($where) > 0) {
       $sql .= "\nWHERE ".join(' AND ', $where);
