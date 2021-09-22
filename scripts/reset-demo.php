@@ -5,6 +5,7 @@
   require_once('Coicop.php');
   require_once('Expense.php');
   $cc = new Coicop();
+  $user_table = 'user_auth';
   $demo_userid = 9;
   $demo = new Expense($demo_userid);
   $start_time = strtotime('2000-01-01 00:00:00');
