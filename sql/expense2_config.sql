@@ -12,11 +12,10 @@ CREATE TABLE `expense2_config` (
   `read_only` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`user_id`),
   KEY `read_only` (`read_only`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM;
 
 --
 -- Data for table `expense2_config`
 --
 
-INSERT INTO `expense2_config` VALUES (9,'Kulutusseuranta','fi','expense2_demo','',0);
-
+INSERT INTO `expense2_config` VALUES (9,'Expense demo','en','expense2_demo','',0);

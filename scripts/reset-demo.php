@@ -57,7 +57,17 @@
                       '12.9' => array('min' => 0.5, 'max' => 1200, '*' => 2));
 
   $totals = array();
-  $stat_userid = 301;
+
+  // get reference amounts from the first benchmark user (bm0)
+  $select = "SELECT user_id FROM $user_table where username = 'bm0'";
+  $res = db_query($select);
+  if ($row = db_fetch_assoc($res)) {
+   $stat_userid = $row['user_id'];
+  }
+  else {
+   die("Could not get find benchmark user bm0!");
+  }
+
   $stat = new Expense($stat_userid);
   $statquery = Array();
   $statquery['from'] = $start_time;

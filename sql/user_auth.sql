@@ -24,4 +24,3 @@ CREATE TABLE `user_auth` (
 --
 
 INSERT INTO `user_auth` VALUES (9,9,'demo',SHA1('demo'),'2000-01-01 00:00:00',NULL,'y',20);
-
