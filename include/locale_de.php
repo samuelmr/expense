@@ -15,6 +15,8 @@
   $LOCALE['benchmark'] = 'Benchmark';
   $LOCALE['plot'] = 'Graph';
   $LOCALE['benchmark_title'] = 'Referenz Ziel';
+  $LOCALE['lta'] = 'Langjähriger Durchschnitt';
+  $LOCALE['prevy'] = 'Vorheriges Jahr';
   $LOCALE['search'] = 'Suchbegriff';
   $LOCALE['show'] = 'Anzeigen';
   $LOCALE['showonly'] = 'Zeige nur';

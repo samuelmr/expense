@@ -540,12 +540,18 @@ EO2;
        htmlentities($LOCALE['total'])."</th>";
     echo "</tr>\n   </thead>\n   <tbody>\n";
 
-    $start_year = date('Y', $e->getFirstDate());
-    $end_year = date('Y', $e->getLastDate());
+    $start_time = $e->getFirstDate();
+    $end_time = $e->getLastDate();
+    $start_year = date('Y', $start_time);
+    $end_year = date('Y', $end_time);
+    if ($attrs['bmto'] == 'lta') {
+      $battrs = $attrs;
+      $battrs['from'] = $start_time;
+      $battrs['to'] = time();
+      $totb = $b->getTotal($battrs);
+      $lta_span = time() - $start_time;
+    }
     for ($y=$start_year; $y<=$end_year; $y++) {
-      $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
-      $attrs['to'] = mktime(0, 0, 0, 12, 31, $y);
-      $urlattrs = attrs2url($attrs);
       $trow = "    <tr><th class=\"year\" id=\"by$y\" scope=\"row\">$y</th>";
       $allmissed = TRUE;
       for ($m=1; $m<=12; $m++) {
@@ -553,13 +559,32 @@ EO2;
         $attrs['to'] = mktime(0, 0, 0, $m+1, 1, $y)-1;
         $urlattrs = attrs2url($attrs);
         $link = "./?$urlattrs";
-        $title = htmlentities($LOCALE['showonly']." ".
-                              $LOCALE['months'][$m])." $y";
+        # $title = htmlentities($LOCALE['showonly']." ".
+        #                       $LOCALE['months'][$m])." $y";
         $atot = $e->getTotal($attrs);
         $battrs = $attrs;
-        $battrs['prod'] = '';
-        $btot = $b->getTotal($battrs);
+        if ($attrs['bmto'] == 'prevy') {
+          $battrs['from'] = strtotime("-1 year", $battrs['from']);
+          $battrs['to'] = strtotime(" -1 year", $battrs['to']);
+          $btot = $b->getTotal($battrs);
+        }
+        elseif ($attrs['bmto'] == 'lta') {
+          $btot = $totb * ($attrs['to'] - $attrs['from']) / $lta_span;
+        }
+        else {
+          $battrs['prod'] = '';
+          $btot = $b->getTotal($battrs);
+        }
         $diff = $atot - $btot;
+        # $title = htmlentities($LOCALE['months'][$m])." $y: ".
+        # number_format($atot, 2, ',', ' ')."&nbsp;&euro;".
+        # " &minus; ".htmlentities($LOCALE['months'][$m])." ". ($y-1).": ".
+        # number_format($btot, 2, ',', ' ')."&nbsp;&euro;".
+        # " = ".
+        # number_format($diff, 2, ',', ' ')."&nbsp;&euro;";
+        $title = number_format($atot, 2, ',', ' ')."&nbsp;&euro;".
+        " &minus; ".number_format($btot, 2, ',', ' ')."&nbsp;&euro;".
+        " = ".number_format($diff, 2, ',', ' ')."&nbsp;&euro;";
         $plusminus = ($diff < 0) ? 'minus' : 'plus';
         if (($atot == 0) || ($btot == 0)) {
           if ($atot == 0) {
@@ -575,18 +600,32 @@ EO2;
         }
         $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\">".
            "<a href=\"$link\" title=\"$title\">".
-           number_format($diff, 2, ',', ' ')."</a></td>";
+           str_replace(' ', '&nbsp;', number_format($diff, 2, ',', ' ')).
+	   "</a></td>";
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
       $attrs['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
       $urlattrs = attrs2url($attrs);
       $link = "./?$urlattrs";
-      $title = htmlentities($LOCALE['total'])." $y";
+      # $title = htmlentities($LOCALE['total'])." $y";
       $atot = $e->getTotal($attrs);
       $battrs = $attrs;
-      $battrs['prod'] = '';
-      $btot = $b->getTotal($battrs);
+      if ($attrs['bmto'] == 'prevy') {
+        $battrs['from'] = strtotime("-1 year", $battrs['from']);
+        $battrs['to'] = strtotime(" -1 year", $battrs['to']);
+        $btot = $b->getTotal($battrs);
+      }
+      elseif ($attrs['bmto'] == 'lta') {
+        $btot = $totb * ($attrs['to'] - $attrs['from']) / $lta_span;
+      }
+      else {
+        $battrs['prod'] = '';
+        $btot = $b->getTotal($battrs);
+      }
       $diff = $atot - $btot;
+      $title = number_format($atot, 2, ',', ' ')."&nbsp;&euro;".
+      " &minus; ".number_format($btot, 2, ',', ' ')."&nbsp;&euro;".
+      " = ".number_format($diff, 2, ',', ' ')."&nbsp;&euro;";
       $plusminus = ($diff < 0) ? 'minus' : 'plus';
       if (($atot == 0) || ($btot == 0)) {
         if ($atot == 0) {
@@ -619,11 +658,27 @@ EO2;
     // copy; may be modified
     $attrs = $query;
     $span = date('j.n.Y', $attrs['from'])."&ndash;".date('j.n.Y', $attrs['to']);
-    # $urlattrs = attrs2url($attrs);
     $total = $e->getTotal($attrs);
     $battrs = $attrs;
-    $battrs['prod'] = '';
+    if ($attrs['bmto'] == 'prevy') {
+      $battrs['from'] = strtotime("-1 year", $battrs['from']);
+      $battrs['to'] = strtotime(" -1 year", $battrs['to']);
+      $bmname = $LOCALE['prevy'];
+    }
+    elseif ($attrs['bmto'] == 'lta') {
+      $start_time = $e->getFirstDate();
+      $battrs['from'] = $start_time;
+      $battrs['to'] = time();
+      $bmname = $LOCALE['lta'];
+      $lta_ratio = ($attrs['to'] - $attrs['from']) / (time() - $start_time);
+    }
+    else {
+      $battrs['prod'] = '';
+    }
     $bmark = $b->getTotal($battrs);
+    if ($attrs['bmto'] == 'lta') {
+      $bmark = $bmark * $lta_ratio;
+    }
     $diff = $total - $bmark;
     $plusminus = ($diff < 0) ? 'minus' : 'plus';
     if (($total == 0) || ($bmark == 0)) {
@@ -632,25 +687,32 @@ EO2;
     $cattrs = $attrs;
     unset($cattrs['bmto']);
     echo "  <div id=\"benchmarkimages\">\n";
-    echo "   <h2>".htmlentities($bmname)."</h2>\n";
+    echo "   <form method=\"get\" action=\"./\">\n";
+    echo "    <fieldset id=\"bmtarget\">\n";
+    echo "     ".attrs2form($cattrs, 'bmform')."\n";
+    echo "     <label id=\"bmtolabel\" for=\"bmto\">".
+         htmlentities($LOCALE['benchmark_title']).
+         "</label>\n";
+    echo "     <select name=\"bmto\" id=\"bmto\">\n";
+    echo "      <option value=\"lta\"".
+            ($attrs['bmto'] == 'lta' ? ' selected="selected"' : '').
+            ">".htmlentities($LOCALE['lta'], ENT_QUOTES, 'UTF-8')."</option>\n";
+    echo "      <option value=\"prevy\"".
+            ($attrs['bmto'] == 'prevy' ? ' selected="selected"' : '').
+            ">".htmlentities($LOCALE['prevy'], ENT_QUOTES, 'UTF-8')."</option>\n";
     if ($targets) {
-      echo "   <form method=\"get\" action=\"./\">\n";
-      echo "    <fieldset id=\"bmtarget\">\n";
-      echo "     ".attrs2form($cattrs, 'bmform')."\n";
-      echo "     <label for=\"bmto\">".htmlentities($LOCALE['benchmark_title']).
-           "</label>\n";
-      echo "     <select name=\"bmto\" id=\"bmto\">\n";
       foreach ($targets as $targ) {
        echo "      <option value=\"$targ[id]\"".
             ($targ['id'] == $attrs['bmto'] ? ' selected="selected"' : '').
             ">".htmlentities($targ['config']['title'], ENT_QUOTES, 'UTF-8')."</option>\n";
       }
-      echo "     </select>\n";
-      echo "     ".form_input('', htmlentities($LOCALE['show']), 'submit')."\n";
-      echo "    </fieldset>\n";
-      echo "   </form>\n";
     }
+    echo "     </select>\n";
+    echo "     ".form_input('', htmlentities($LOCALE['show']), 'submit')."\n";
+    echo "    </fieldset>\n";
+    echo "   </form>\n";
 
+    echo "   <h2 id=\"bmtargetname\">".htmlentities($bmname)."</h2>\n";
     if (!$total) {
       echo "   <h3 class=\"error\">".htmlentities(ucfirst(sprintf($LOCALE['missing'], $LOCALE['owntot'])))." $span</h3>\n";
       echo "  </div>\n";
@@ -674,14 +736,15 @@ EO2;
     $bh = "10,2,4";
     $max = sprintf('%0.2f', (($bmark > $total) ? $bmark : $total));
     $u = (($max != 0) ? (100/$max) : 0);
-    $attrs = $query;
     $attrs['view'] = 'details';
     foreach($cats as $catid => $cat) {
       $attrs['type'] = $cat->id;
+      $battrs['type'] = $cat->id;
       $tota = $e->getTotal($attrs);
-      $battrs = $attrs;
-      $battrs['prod'] = '';
       $totb = $b->getTotal($battrs);
+      if ($attrs['bmto'] == 'lta') {
+        $totb = $totb * $lta_ratio;
+      }
       $diff = sprintf('%0.2f', $tota - $totb);
       # $diffprc = ($totb ? (sprintf('%d', 100*($tota - $totb)/$totb)) : '0.00');
       $diffprc = ($totb ? (sprintf('%d', 100*$tota/$totb)) : '0.00');
@@ -726,11 +789,19 @@ EO2;
                 "&amp;chd=t:$sa|$sb".
                 "";
       $urlattrs = attrs2url($attrs);
+      $tip = number_format($tota, 2, ',', ' ')."&nbsp;&euro;".
+           " &minus; ".
+           number_format($totb, 2, ',', ' ')."&nbsp;&euro;".
+           " = ".
+           number_format($diff, 2, ',', ' ')."&nbsp;&euro;";
+      $alt = "$LOCALE[owntot]: ".
+           number_format($tota, 2, ',', ' ')."&nbsp;&euro;".
+           ", $LOCALE[avgtot]: ".
+           number_format($totb, 2, ',', ' ')."&nbsp;&euro;";
       echo "   <h4><a href=\"./?$urlattrs\">".htmlentities($catn)."</a></h4>\n".
-           "   <p title=\"$tota - $totb = $diff\"><a href=\"./?$urlattrs\">".
+           "   <p title=\"$tip\"><a href=\"./?$urlattrs\">".
            "<img src=\"$imgsrc\" class=\"bmark\" width=\"$w\" height=\"$h\"".
-           " alt=\"$LOCALE[owntot]: $tota, $LOCALE[avgtot]: $totb\" /></a>".
-           "</p>\n";
+           " alt=\"$alt\" /></a></p>\n";
     }
     echo "  </div>\n";
   }
@@ -1294,12 +1365,6 @@ EOF;
    <li id="plotlink"><a href="#plot">$text_plot</a></li>
    <li id="benchmarkimageslink"><a href="#benchmarkimages">$text_benchmark</a></li>
   </ul>
-<!--
-  <ul id="links">
-   <li><a target="insWin" href="./?$urlattrs_insert" class="modify">$text_insert</a></li>
-   <li><a href="./logout.php?message=$logoutmsg&amp;back=$returnmsg">$text_logout</a></li>
-  </ul>
--->
 
 EOL;
   }

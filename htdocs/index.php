@@ -251,7 +251,12 @@ EOS;
            htmlentities($LOCALE['expense'])."</a></h1>\n";
       form($cc, $QUERY);
       history($e, $QUERY);
-      $b = new Expense($QUERY['bmto']);
+      if (($QUERY['bmto'] == 'prevy') || ($QUERY['bmto'] == 'lta')) {
+        $b = $e;
+      }
+      else {
+        $b = new Expense($QUERY['bmto']);
+      }
       benchmarkhistory($e, $b, $cc, $QUERY);
       printErrors($GLOBALS['ERRORS']);
       links($QUERY);

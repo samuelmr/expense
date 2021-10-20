@@ -15,6 +15,8 @@
   $LOCALE['benchmark'] = 'Vertailu';
   $LOCALE['plot'] = 'Kuvaaja';
   $LOCALE['benchmark_title'] = 'Vertailukohde';
+  $LOCALE['lta'] = 'Pitkän ajan keskiarvo';
+  $LOCALE['prevy'] = 'Edellinen vuosi';
   $LOCALE['search'] = 'Hakusana';
   $LOCALE['show'] = 'Näytä';
   $LOCALE['showonly'] = 'Näytä vain';
