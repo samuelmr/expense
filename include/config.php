@@ -26,7 +26,9 @@
     if (!$to) {
       $to = strtotime(date('Y-m-d'));
     }
-    $to = strtotime('+1 day', $to) - 1; // start of date to end of date
+    if (date('H:m:s', $to) == '00:00:00') {
+      $to = strtotime('+1 day', $to) - 1; // start of date to end of date
+    }
     $date = (isset($req['date']) ? $req['date'] : date('d.m.Y'));
 
     $other = NULL;
