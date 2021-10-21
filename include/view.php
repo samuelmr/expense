@@ -592,7 +592,16 @@ EO2;
         elseif ($allmissed && ($atot || $btot)) {
           $allmissed = FALSE;
         }
-        $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\">".
+	$ratio = ($btot != 0) ? abs($diff/$btot) : 0;
+	if ($ratio > 25) {
+	  $ratio = 25;
+	}
+	$h = ($diff < 0) ? 120 : 0;
+	$s = (75 + $ratio).'%';
+	$l = (100 - 2.5 * $ratio).'%';
+	$a = 0.5;
+	$style = ' style="background-color: hsla('.$h.','.$s.','.$l.','.$a.');"';
+        $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\"$style>".
            "<a href=\"$link\" title=\"$title\">".
            locale_format($diff).
 	   "</a></td>";
@@ -630,7 +639,16 @@ EO2;
         }
         $plusminus = 'miss';
       }
-      $trow .= "<td class=\"year $plusminus\" headers=\"by$y btotal\">".
+      $ratio = ($btot != 0) ? abs($diff/$btot) : 0;
+      if ($ratio > 25) {
+        $ratio = 25;
+      }
+      $h = ($diff < 0) ? 120 : 0;
+      $s = (75 + $ratio).'%';
+      $l = (100 - 2.5 * $ratio).'%';
+      $a = 0.5;
+      $style = ' style="background-color: hsla('.$h.','.$s.','.$l.','.$a.');"';
+      $trow .= "<td class=\"year $plusminus\" headers=\"by$y btotal\"$style>".
            "<a href=\"$link\" title=\"$title\">".
            locale_format($diff)."</a></td>";
       $trow .= "</tr>\n";
