@@ -1,5 +1,8 @@
 <?php
 
+  $LOCALE['decimal_separator'] = ',';
+  $LOCALE['thousand_separator'] = mb_chr(0xa0, 'UTF-8');
+  $LOCALE['expense'] = 'Kulutusseuranta';
   $LOCALE['expense'] = 'Kulutusseuranta';
   $LOCALE['defaults'] = 'Palauta oletusasetukset';
   $LOCALE['lang'] = 'Kieli';

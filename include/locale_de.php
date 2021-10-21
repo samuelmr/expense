@@ -1,5 +1,7 @@
 <?php
 
+  $LOCALE['decimal_separator'] = ',';
+  $LOCALE['thousand_separator'] = '.';
   $LOCALE['expense'] = 'Kosten';
   $LOCALE['defaults'] = 'Standard wiederherstellen';
   $LOCALE['lang'] = 'Sprache';
