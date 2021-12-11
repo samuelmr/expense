@@ -87,10 +87,18 @@ function ts_resortTable(lnk) {
  if (table.rows.length <= 1) return;
  var itm = ts_getInnerText(table.rows[1].cells[column]);
  sortfn = ts_sort_caseinsensitive;
- if (itm.match(/^-?[\d\.,]+(\s*%)?$/)) sortfn = ts_sort_numeric;
- if (itm.match(/^\d\d[\.\/-]\d\d[\.\/-]\d\d\d\d$/)) sortfn = ts_sort_date;
- if (itm.match(/^\d\d[\.\/-]\d\d[\.\/-]\d\d$/)) sortfn = ts_sort_date;
- if (itm.match(/^[£$€]/)) sortfn = ts_sort_currency;
+ if (itm.match(/^-?[\d\., \xa0]+(\s*%)?$/)) {
+  sortfn = ts_sort_numeric;
+ }
+ if (itm.match(/^\d\d[\.\/-]\d\d[\.\/-]\d\d\d\d$/)) {
+  sortfn = ts_sort_date;
+ }
+ if (itm.match(/^\d\d[\.\/-]\d\d[\.\/-]\d\d$/)) {
+  sortfn = ts_sort_date;
+ }
+ if (itm.match(/^[£$€]/)) {
+  sortfn = ts_sort_currency;
+ }
  SORT_COLUMN_INDEX = column;
  var firstRow = new Array();
  var newRows = new Array();
@@ -284,6 +292,7 @@ function alternate(table) {
  }
 }
 function tidy_number(str) {
+ str = str.replace('\xa0', '');
  str = str.replace('%', '');
  str = str.replace(' ', '');
  str = str.replace(',', '.');
