@@ -13,49 +13,13 @@
 
  $cc = new Coicop();
 
- # $lastvaluesurl = 'https://pxnet2.stat.fi/PXWeb/sq/f9e857be-ee6f-4430-ae4e-34cb1ac93e0b';
- $lastvaluesurl = 'https://pxnet2.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
- 
-/*
- // http://pxnet2.stat.fi/PXWeb/pxweb/fi/StatFin/StatFin__tul__ktutk/statfin_ktutk_pxt_001.px/table/tableViewLayout1/?rxid=b26cdefd-29c7-4721-b05a-fec60145ee6f
- $index2000url = 'https://pxnet2.stat.fi/PXWeb/sq/c0db653c-b549-49d8-ba9d-c79b9ae5c2aa';
- $index2005url = 'https://pxnet2.stat.fi/PXWeb/sq/772f1db4-1db4-4b9b-b0b4-d3ea792c6776';
- # $index2010url = 'https://pxnet2.stat.fi/PXWeb/sq/36cb1acc-00dc-4e43-a0b6-a420de52012d';
- $index2010url = 'https://pxnet2.stat.fi/PXWeb/sq/5627568e-eb4d-4d71-b972-9de5cadeaa6a';
- $index2015url = 'https://pxnet2.stat.fi/PXWeb/sq/222b2737-c9c2-4cba-8983-a0f508b6d0ca';
-
- $indexes = array();
- $remember = array();
- getIndexes(2001, $index2000url);
- getIndexes(2005, $index2005url);
- getIndexes(2010, $index2010url);
- getIndexes(2015, $index2015url);
-
-*/
-
-/*
- Indeksit:
- - StatFi => Hinnat ja kustannukset => Kuluttajahintaindeksi => Kuukausitiedot =>
-   11xq -- Kuluttajahintaindeksit pääryhmittäin (2000=100, 2005=100, 2010=100, 2015=100), kuukausitiedot, 2000M01-2019M09
- - http://pxnet2.stat.fi/PXWeb/pxweb/fi/StatFin/StatFin__hin__khi__kk/statfin_khi_pxt_11xq.px/
- - kaikki tiedot, kuukaudet, indeksisarjat ja hyödykkeet
-#  - indeksisarja 2000=100, kuukaudet 2000M01 - 2004M12 => index2000url
-#  - indeksisarja 2005=100, kuukaudet 2005M01 - 2009M12 => index2005url
-#  - indeksisarja 2010=100, kuukaudet 2010M01 - 2004M12 => index2010url
-#  - indeksisarja 2015=100, kuukaudet 2015M01 - 2004M12 => index2015url
-#  - Sarkaineroteltu (otsikollinen)
- - Taulukkonäkymä 1
- - Jatka
- - Tallenna poiminta
- - Kiinteä aloitusaika, johon lisätään päivitetyt jaksot
- - JSON-stat-tiedosto
- - http://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3
-*/
+ $lastvaluesurl = 'https://statfin.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
 
  $index2000Url = 'https://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
- $index2005Url = 'https://pxnet2.stat.fi/PXWeb/sq/d2b511c2-f662-4e2b-9090-736c93960a4e';
- $index2010Url = 'https://pxnet2.stat.fi/PXWeb/sq/43f0c885-e7ce-4528-9c02-e72935e3a661';
- $index2015Url = 'https://pxnet2.stat.fi/PXWeb/sq/ae3cfa79-72a6-439a-ad25-f5acc0c85b66';
+ # $index2000Url = 'https://statfin.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
+ $index2005Url = 'https://statfin.stat.fi/PXWeb/sq/d2b511c2-f662-4e2b-9090-736c93960a4e';
+ $index2010Url = 'https://statfin.stat.fi/PXWeb/sq/43f0c885-e7ce-4528-9c02-e72935e3a661';
+ $index2015Url = 'https://statfin.stat.fi/PXWeb/sq/ae3cfa79-72a6-439a-ad25-f5acc0c85b66';
 
 
  $jsonstat = array();
@@ -69,73 +33,6 @@
  
  getBase($lastvaluesurl);
  getBudgets();
-
-/*
-function getIndexJson($url) {
-  $response = http_get($url);
-  $all = json_decode($response);
-  $ind = array();
-  $i = 0;
-  foreach ($all->dataset->dimension->Indeksisarja->category->index as $iskey => $isindex) {
-   $i++;
-   foreach ($all->dataset->dimension->Kuukausi->category->index as $kkkey => $kkindex) {
-    $i++;
-    foreach ($all->dataset->dimension->Hyödyke->category->index as $hykey => $hyindex) {
-     $i++;
-     if (isset($all->dataset->value[$n])) {
-      $value = $all->dataset->value[$n];
-      if ($value !== null) {
-       echo "$iskey-$kkkey-$hykey $n ($isindex, $kkindex, $hyindex) = ".$value."\n";
-      }
-     }
-    }
-   }
-  }
-  return $ind;
- }
-*/
-
-
-/*
- function getpx($params) {
-  global $DEBUG;
-  $url = 'http://193.166.171.75/Dialog/Saveshow.asp';
-  if ($DEBUG) {
-   # trigger_error("$url?$params", E_USER_NOTICE);
-  }
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $response = curl_exec($ch);
-  curl_close($ch);
-
-  if ($DEBUG > 1) {
-   trigger_error($response, E_USER_NOTICE);
-  }
-  return $response;
- }
-
- function getIndex($params) {
-  global $DEBUG;
-  $response = getpx($params);
-  if ($DEBUG) {
-   echo "\n$response\n";
-  }
-  $index = array();
-  $rows = explode("\n", $response);
-  for ($i=0; $i<count($rows); $i++) {
-   $values = explode("\t", $rows[$i]);
-   if ($values[0] != '"Pisteluku"') {
-    continue;
-   }
-   $key = preg_replace('/^"(\d+)\s.*$/', '\\1', $values[1]);
-   $index[$key] = sprintf('%f', trim($values[2]));
-  }
-  return $index;
- }
-*/
 
  function getIndex($y, $m, $type) {
   global $jsonstat, $DEBUG;
@@ -563,24 +460,6 @@ function getIndexJson($url) {
      return FALSE;
     }
     $currentindex = getIndex($iy, $im, $type);
-/*
-    $key1 = sprintf('%d-%02d-%s', $iy, $im, $type);
-    $key2 = sprintf('%d-%02d', $iy, $im);
-    $key3 = sprintf('%d-%s', $iy, $type);
-    if (isset($indexes[$key1])) {
-     $currentindex = $indexes[$key1];
-    }
-    elseif (isset($indexes[$key2])) {
-     $currentindex = $indexes[$key2];
-    }
-    elseif (isset($indexes[$key3])) {
-     $currentindex = $indexes[$key3];
-    }
-    else {
-     echo "no current index for keys '$key1', '$key2' and '$key3'\n";
-     $currentindex = 100;
-    }
-*/
     if ($baseindex && $currentindex) {
      $indexed = ($value)/$baseindex*$currentindex;
      if ($DEBUG > 1) {
