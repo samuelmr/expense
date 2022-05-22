@@ -86,7 +86,7 @@
     $percent = ($total > 0) ? ($cost / $total) : 0;
     # $title = sprintf("%s: %.02f (%.02f %%)",
     #                  $name, round($cost, 2), (100 * $percent));
-    $title = "$name: ".number_format($cost, 2, ',', ' ')." € (".number_format($percent, 2, ',', ' ')." %)";
+    $title = "$name: ".number_format($cost, 2, ',', ' ')." € (".number_format(100 * $percent, 2, ',', ' ')." %)";
     # $title = htmlentities_numeric($title);
     # $hint = htmlentities_numeric($locale['showonly']." ".$name);
     $hint = $locale['showonly']." ".$name;
