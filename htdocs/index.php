@@ -149,7 +149,7 @@ EOS;
     }
   }
   if (isset($_REQUEST['delete'])) {
-    if ($_REQUEST['id']) {
+    if (isset($_REQUEST['id']) && $_REQUEST['id']) {
       $attrs = array('id' => $_REQUEST['id']);
       $result = $e->deleteProduct($attrs);
       if ($result) {
@@ -224,7 +224,7 @@ EOS;
       details($e, $cc, $query);
       break;
     case 'modify':
-      if ($_REQUEST['id']) {
+      if (isset($_REQUEST['id']) && $_REQUEST['id']) {
         $attrs = array('id' => $QUERY['id']);
         $stmt = $e->getProducts($attrs);
         $row = db_fetch_assoc($stmt);
