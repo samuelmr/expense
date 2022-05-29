@@ -15,8 +15,9 @@
 
  $lastvaluesurl = 'https://statfin.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
 
- $index2000Url = 'https://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
+ # $index2000Url = 'https://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
  # $index2000Url = 'https://statfin.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
+ $index2000Url = 'https://statfin.stat.fi/PxWeb/sq/a061918c-de2c-44c4-bdd4-8fb16e0a6823';
  $index2005Url = 'https://statfin.stat.fi/PXWeb/sq/d2b511c2-f662-4e2b-9090-736c93960a4e';
  $index2010Url = 'https://statfin.stat.fi/PXWeb/sq/43f0c885-e7ce-4528-9c02-e72935e3a661';
  $index2015Url = 'https://statfin.stat.fi/PXWeb/sq/ae3cfa79-72a6-439a-ad25-f5acc0c85b66';
