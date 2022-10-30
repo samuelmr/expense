@@ -74,8 +74,9 @@
       $_SESSION['accesslevel'] = $row['level'];
       $_SESSION['PHP_AUTH_USER'] = $row['username'];
       db_free_result($stmt);
-      session_write_close();
-      session_start();
+      // session_write_close();
+      // session_start();
+      session_regenerate_id();
       redirect($goto);
       exit();
     }
