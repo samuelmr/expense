@@ -942,7 +942,10 @@ EO2;
   <div id="plot">
    <p class="warning">$LOCALE[flash_required]</p>
   </div>
+  <script type="text/javascript" src="https://www.google.com/jsapi">
+  </script>
   <script type="text/javascript">// <![CDATA[
+   google.load("visualization", "1", {packages: ["annotatedtimeline"]});
    function initPlot() {
     var div = document.getElementById('plot');
     chart = new google.visualization.AnnotatedTimeLine(div);
