@@ -538,7 +538,12 @@ function show(id) {
     ds.innerHTML = styles;
   }
   if ((id == 'plot') && (initPlot)) {
-    initPlot();
+    if (!google.visualization) {
+      google.charts.setOnLoadCallback(initPlot);
+    }
+    else {
+      initPlot();
+    }
   }
   document.cookie = 'tab=' + escape(id) + ';path=/'; 
   return false;
@@ -578,7 +583,5 @@ function initJumpList() {
     window.external.msSiteModeShowJumplist();
   }
 }
-
-// window.onload = init;
 
 init();
