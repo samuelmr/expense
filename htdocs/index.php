@@ -24,12 +24,6 @@
 
   $dtd = '<!DOCTYPE html';
 
-  $scripts = <<<EOS
-  <script type="text/javascript" src="view.js">
-  </script>
-
-EOS;
-
   $QUERY = getQuery($_REQUEST);
   $views = array('summary' => 'summary', 'details' => 'details',
                  'benchmarkimages' => 'benchmark', 'plot' => 'plot');
@@ -91,19 +85,21 @@ EOH;
    exit();
   }
 
-  // only load google stuff if needed?
+  $scripts = '';
+  // only load sorttable if needed
   if (in_array($QUERY['view'], $views)) {
     $scripts .= <<<EOS
-  <script type="text/javascript" src="https://www.google.com/jsapi">
-  </script>
-  <script type="text/javascript">
-   google.load("visualization", "1", {packages: ["annotatedtimeline"]});
-  </script>
   <script type="text/javascript" src="./js/sorttable.js">
   </script>
 
 EOS;
   }
+  $scripts .= <<<EOS
+  <script type="text/javascript" src="view.js">
+  </script>
+
+EOS;
+
 
   header('Vary: Accept, Accept-Language');
 
