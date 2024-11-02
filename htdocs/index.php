@@ -17,7 +17,7 @@
   ini_set('html_errors', 'off');
   ini_set('log_errors', 'on');
   ini_set('error_log', '/www/seuranta/logs/kulutus.seuranta.org-error.log');
-  error_reporting(E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE);
+  # error_reporting(E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE);
   if (function_exists('my_error_handler')) {
     set_error_handler('my_error_handler');
   }
@@ -265,7 +265,8 @@ EOS;
       $query = $QUERY;
       $query['date'] = NULL;
       $query['order'] = 'type';
-      $query['group'] = $level;
+      # $query['group'] = $QUERY['level'];
+      # $query['group'] = $QUERY['group'];
       $query['type'] = NULL;
       $query['lang'] = $QUERY['lang'];
       $query['view'] = $QUERY['view'];
