@@ -5,6 +5,9 @@ require_once('model.php');
 
 class Expense {
 
+  public $user;
+  public $config;
+
   var $configTable = "expense2_config";
   var $authTable = "user_auth";
   var $confUserCol = "user_id";
@@ -48,7 +51,7 @@ class Expense {
   function setConfig($user, $values) {
   }
 
-  function addBenchmarkTarget($desc, $source=NULL, $url=NULL, $uname, $usedby=NULL) {
+  function addBenchmarkTarget($desc, $source=NULL, $url=NULL, $uname=NULL, $usedby=NULL) {
     $insert = "REPLACE INTO ".db_escape_string($this->benchmarkTable)." (".
               db_escape_string($this->bmToCol).
               ($desc ? ", ".db_escape_string($this->bmDescCol) : "").

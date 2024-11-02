@@ -2,6 +2,13 @@
 
 class CoicopSub{
 
+  public $id;
+  public $parent;
+  public $nameFi;
+  public $nameEn;
+  public $helpFi;
+  public $helpEn;
+
   function __construct($id, $parent, $nameFi, $nameEn) {
     $this->id = $id;
     $this->parent = $parent;

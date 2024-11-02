@@ -1,7 +1,14 @@
 <?php
 
 class CoicopCat {
-  function __construct($id, $color, $nameFi, $nameEn) {
+
+  public $id;
+  public $color;
+  public $nameFi;
+  public $nameEn;
+  public $subs;
+  
+  public function __construct($id, $color, $nameFi, $nameEn) {
     $this->id = $id;
     $this->color = $color;
     $this->nameFi = $nameFi;

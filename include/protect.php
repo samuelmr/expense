@@ -122,7 +122,7 @@
     return $goto;
   }
 
-  function login_error_handler($errno, $errmsg, $file, $line, $vars) {
+  function login_error_handler($errno, $errmsg, $file, $line) {
     if ($errno >= E_USER_ERROR) {
       global $ERRORS;
       if (!is_array($ERRORS)) {

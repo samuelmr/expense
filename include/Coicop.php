@@ -5,8 +5,9 @@ require_once('CoicopSub.php');
 
 class Coicop {
 
+  public $cats;
 
-  function __construct() {
+  public function __construct() {
     $this->cats = array();
 
     $c01 = new CoicopCat('01', '#FF0000',
@@ -184,7 +185,8 @@ class Coicop {
   function getSub($id) {
     $cat = $this->getCat($id);
     if (!$cat) {
-      tigger_error("No cat $id found!", E_USER_ERROR);
+      # tigger_error("No cat $id found!", E_USER_ERROR);
+      echo "No cat $id found!";
       return false;
     }
     if ($sub = $cat->getSub($id)) {

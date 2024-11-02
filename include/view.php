@@ -266,8 +266,7 @@
 */
     echo "    <fieldset id=\"searchfs\">";
     $prod = $query['prod'];
-    echo "<label for=\"".make_id('prod', $prod)."\">".
-         htmlentities($LOCALE['search']).":</label>";
+    echo form_label('prod', $prod, $LOCALE['search'].":");
     echo form_input('prod', $prod, 'search', 10, 'maxlength="30"', TRUE);
     echo "</fieldset>\n";
     echo "    <fieldset id=\"datefs\">";
@@ -317,7 +316,59 @@ EO2;
     echo "  </form>\n";
   }
 
-  function insertform(&$cc, &$query) {
+/*
+function insertformTable(&$cc, &$query) {
+    $LOCALE = $GLOBALS['LOCALE'];
+    $cost = $query['cost'];
+    $currency = $query['currency'];
+    $date = $query['date'];
+    $other = $query['other'];
+    $prod = $query['prod'];
+    $rate = (($other > 0) ? $cost/$other : '');
+    $type = $query['type'];
+    echo "  <form action=\"./\" method=\"post\" id=\"insertform\"".
+         " class=\"$query[view]\">\n";
+    echo "   <fieldset id=\"insertfs\">\n    ";
+    echo form_input('id', $query['id'], 'hidden')."\n    ";
+    echo form_input('view', $query['view'], 'hidden')."\n";
+    echo "    <table>\n     <tr>";
+    $coicopurl = 'https://www.stat.fi/tk/tt/luokitukset/popup/coicop.pdf';
+    echo "<th td colspan=\"6\">".htmlentities($LOCALE['type']).
+         " <a href=\"$coicopurl\" target=\"statfi\">(?)</a>".
+         "</th></tr>\n";
+    echo "     <tr><th>".htmlentities($LOCALE['date'])."</th>";
+    echo "<th>".htmlentities($LOCALE['other'])."</th>";
+    echo '<th class="other">'.htmlentities($LOCALE['currency'])."</th>";
+    echo '<th class="other">'.htmlentities($LOCALE['rate'])."</th>";
+    echo "<th>".htmlentities($LOCALE['cost'])."</th></tr>\n";
+    echo "     <tr><th colspan=\"6\">".htmlentities($LOCALE['prod'])."</th></tr>\n";
+    echo "     <tr><td colspan=\"6\">".
+         selectListCombined($query['lang'], $cc, 'type', $type, FALSE).
+         "</td></tr>\n".
+         "     <tr><td>".
+         form_input('date', $date, 'text', 10, 'maxlength="10" class="date"', TRUE).
+         "</td><td>".
+         form_input('other', $other, 'text', 10, ' class="money"', TRUE).
+         "</td><td>".
+         form_input('currency', $currency, 'text', 4, 'maxlength="3" class="curr"', TRUE).
+         "</td><td>".
+         form_input('rate', $rate, 'text', 10, ' class="money"', TRUE).
+         "</td><td>".
+         form_input('cost', $cost, 'text', 10, ' class="money"', TRUE).
+         "</td></tr>\n".
+         "     <tr><td colspan=\"6\">".
+         form_input('prod', $prod, 'text', 60, 'maxlength="255" style="width: 99%;"', TRUE).
+         "</td></tr>\n";
+    echo "     <tr><td colspan=\"6\">".
+         form_input($query['view'], htmlentities($LOCALE[$query['view']]), 'submit').
+         "</td></tr>\n";
+    echo "   </table>\n";
+    echo "  </form>\n";
+  }
+
+*/
+
+function insertform(&$cc, &$query) {
     $LOCALE = $GLOBALS['LOCALE'];
     $cost = $query['cost'];
     $currency = $query['currency'];
@@ -367,6 +418,7 @@ EO2;
   }
 
 /*
+
   function addInsertHistory(&$query) {
     $LOCALE = $GLOBALS['LOCALE'];
     $h = array($query['id'], $query['date'],
@@ -480,7 +532,7 @@ EO2;
       $p = ($total > 0) ? (round($row['cost']/$total, 4)) : 0;
       $total_perc += $p;
       $w = ceil($cost * $w_unit);
-      $alt = str_repeat('*', (100 * $p));
+      $alt = $p > 0 ? str_repeat('*', (100 * $p)) : "";
       if (($w/$maxw) < 0.25) {
         $src = $CONFIG['hor_25'];
       }
@@ -780,7 +832,7 @@ EO2;
       $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
       $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
       $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
-      $imgsrc = "https://chart.apis.google.com/chart?chs=${w}x${h}".
+      $imgsrc = "https://chart.apis.google.com/chart?chs={$w}x{$h}".
                 "&amp;cht=bhg".
                 "&amp;chbh=$bh".
                 "&amp;chco=000099,666666&amp;chts=000000,10".
@@ -894,7 +946,7 @@ EO2;
       $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
       $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
       $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
-      $imgsrc = "https://chart.apis.google.com/chart?chs=${w}x${h}".
+      $imgsrc = "https://chart.apis.google.com/chart?chs={$w}x{$h}".
                 "&amp;cht=bhg".
                 "&amp;chbh=$bh".
                 "&amp;chco=000099,666666&amp;chts=000000,10".
@@ -963,7 +1015,7 @@ EOH;
     }
     else {
       $level = 'type';
-      $type = substr($query[type], 0, 2);
+      $type = substr($query['type'], 0, 2);
       $cat = $cc->findCat($type);
       $subs = $cat->getSubs();
       for ($i=0; $i<count($subs); $i++) {
@@ -976,7 +1028,7 @@ EOH;
       # $label = $id." ".substr($values[1], 0, 4);
       $label = $values[1];
       echo "    data.addColumn('number', '$label');\n";
-      if ($values[2]) {
+      if (isset($values[2])) {
         $colors[] = "'$values[2]'";
       }
     }
@@ -1028,33 +1080,40 @@ EOH;
       $values = "    data.addRow([new Date($y, $m, $midday)";
       reset($columns);
       foreach($columns as $id => $data) {
+        if (!isset($tmpdata[$id][2])) {
+          $tmpdata[$id][2] = "";
+	}
         $values .= sprintf(", %.2f", $tmpdata[$id][2]);
       }
       $values .= "]);\n";
       echo $values;
       $count++;
     }
-    $cols = join(',', $colors);
-
+    $cols = "";
+    if (count($colors) > 0) {
+      // $cols = "'colors': [".join(',', $colors)."],";
+    }
+ 
     echo <<<EOF
-    var opts = {'colors': [$cols],
-                // curveType: 'function',
-                'dateFormat': 'dd.MM.yyyy',
-                'displayAnnotations': false,
-                'displayLegendValues': false,
-                'displayExactValues': true,
-                'fill': 20,
-                'legendPosition': 'newRow',
-                'min': 0,
-                'scaleType': 'maximized',
-                'thickness': 3,
-                // 'width': $plot_w,
-                // 'height': $plot_h,
-                // 'vAxis': {'maxValue': $max},
-                'wmode': 'transparent',
-                'zoomStartTime': new Date($fy, $fm, $fd),
-                'zoomEndTime': new Date($ty, $tm, $td)
-                }
+    var opts = {
+     $cols
+     // curveType: 'function',
+     'dateFormat': 'dd.MM.yyyy',
+     'displayAnnotations': false,
+     'displayLegendValues': false,
+     'displayExactValues': true,
+     'fill': 20,
+     'legendPosition': 'newRow',
+     'min': 0,
+     'scaleType': 'maximized',
+     'thickness': 3,
+     // 'width': $plot_w,
+     // 'height': $plot_h,
+     // 'vAxis': {'maxValue': $max},
+     'wmode': 'transparent',
+     'zoomStartTime': new Date($fy, $fm, $fd),
+     'zoomEndTime': new Date($ty, $tm, $td)
+    }
     chart.draw(data, opts);
    }
 //]]></script>
@@ -1496,6 +1555,9 @@ EOS;
                        substr($array['type'], 0, 2));
     }
     foreach($array as $key => $value) {
+      if (!$value) {
+        $value = "";
+      }
       ++$count;
       $url .= urlencode($key)."=".urlencode($value);
       if ($count < count($array)) {
@@ -1538,7 +1600,7 @@ EOS;
   }
 
   function printErrors($errors) {
-    if (count($errors) > 0) {
+    if (isset($errors) && is_array($errors) && count($errors) > 0) {
       for ($i=0; $i<count($errors); $i++) {
         list($str, $class, $file, $line) = $errors[$i];
         echo "  <div class=\"$class\">".htmlentities($str)."</div>\n";
@@ -1586,10 +1648,13 @@ EOS;
   }
 
   function locale_format($num, $unit='') {
+    if (!$num) {
+      $num = 0;
+    }
     $LOCALE = $GLOBALS['LOCALE'];
     $dec = $LOCALE['decimal_separator'];
     $ths = $LOCALE['thousand_separator'];
-    $str = number_format($num, 2, $dec, $ths);
+    $str = number_format(floatval($num), 2, $dec, $ths);
     if ($unit) {
       $str .= "&nbsp;$unit";
     }

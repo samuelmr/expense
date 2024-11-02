@@ -98,6 +98,10 @@
      *     
      */
 
+    if (!$value) {
+      $value = "";
+    }
+
     $input = "<input type=\"$type\"";
     if ($name) {
       $input .= " id=\"".make_id($name, $value, $form)."\" name=\"$name\"";

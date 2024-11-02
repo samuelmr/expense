@@ -2,6 +2,7 @@
 
   require_once('database.php');
   require_once('model.php');
+  global $ERRORS;
   global $ERRORCONFIG;
   $ERRORCONFIG = array('max_errors' => 20);
   global $DB_CONFIG;
@@ -182,7 +183,7 @@
         $class = 'warning';
         break;
     }
-    if (count($ERRORS) < $CONFIG['max_errors']) {
+    if (isset($ERRORS) && is_array($ERRORS) && count($ERRORS) < $CONFIG['max_errors']) {
       $ERRORS[] = array($str, $class, $file, $line);
     }
   }
