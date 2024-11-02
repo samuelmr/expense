@@ -13,8 +13,10 @@
 
  $cc = new Coicop();
 
- $lastvaluesurl = 'https://statfin.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
-
+ # $lastvaluesurl = 'https://statfin.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
+ $lastvaluesurl = 'https://statfin.stat.fi:443/PxWeb/sq/dfaf9e15-70de-4216-bc58-02323e9e23e9';
+ # $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/b596762a-208b-4d44-97fb-5ac0b3ad01d0';
+ $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/8335445e-1088-4eca-87ed-59b2dd15252f';
  # $index2000Url = 'https://pxnet2.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
  # $index2000Url = 'https://statfin.stat.fi/PXWeb/sq/956384ea-8ac6-485f-9eb0-65b4da5aa2e3';
  # $index2000Url = 'https://statfin.stat.fi/PxWeb/sq/a061918c-de2c-44c4-bdd4-8fb16e0a6823';
@@ -33,8 +35,46 @@
  # echo json_encode($jsonstat);
  # exit();
  
+ $types = array("Kaikki kotitaloudet",
+  "Yhden hengen talous, alle 65 v",
+  "Lapseton pari, alle 65 v",
+  "Yksinhuoltajatalous",
+  "Kahden huoltajan lapsiperhe",
+  "Vanhustalous",
+  "Muut kotitaloudet"
+);
+$reverseTypes = array(
+  "Yhden hengen talous, alle 65 v" => 1,
+  "Lapseton pari, alle 65 v" => 2,
+  "Yhden huoltajan taloudet" => 3,
+  "Kahden huoltajan lapsiperhe" => 4,
+  "Yli 64-vuotiaiden kotitaloudet" => 5,
+  "Muut kotitaloudet" => 6,
+  "Kaikki kotitaloudet" => 0
+);
+
+ $ehandles = initHandles($lastvaluesurl);
  getBase($lastvaluesurl);
+ getNewBase($newestvaluesurl);
  getBudgets();
+
+ function initHandles($lastvaluesurl) {
+  global $types;
+  $ehandles = array();
+  $datasource_name = 'Tilastokeskuksen kulutustutkimus';
+  foreach ($types as $i => $t) {
+   $u = "bm$i";
+   $p = $u;
+   if ($uid = addUser($u, $p, $t)) {
+    $ehandles[$t] = new Expense($uid);
+    $ehandles[$t]->addBenchmarkTarget($t, $datasource_name, $lastvaluesurl, $u);
+   }
+   else {
+    trigger_error("addUser failed ($u, $p, $t)", E_USER_ERROR);
+   }
+  }
+  return $ehandles;
+ }
 
  function getIndex($y, $m, $type) {
   global $jsonstat, $DEBUG;
@@ -75,7 +115,9 @@
    $varname = 'indeksipisteluku';
   }
   $query = array('Kuukausi' => sprintf('%dM%02d', $y, $m), 'Hyödyke' => $type, 'Tiedot' => $varname);
-  return getValue($jsonstat[$iy], $query);
+  $value = getValue($jsonstat[$iy], $query);
+  # echo "[$y-$m: $type - $varname] => $value\n";
+  return $value;
  }
 
  function getYearIndex($y, $type) {
@@ -87,31 +129,12 @@
  }
 
  function getBase($lastvaluesurl) {
-  global $indexes, $DB_CONFIG, $DEBUG;
-  $types = array("Kaikki kotitaloudet",
-                 "Yhden hengen talous, alle 65 v",
-                 "Lapseton pari, alle 65 v",
-                 "Yksinhuoltajatalous",
-                 "Kahden huoltajan lapsiperhe",
-                 "Vanhustalous",
-                 "Muut kotitaloudet");
-  $ehandles = array();
-  $datasource_name = 'Tilastokeskuksen kulutustutkimus';
-  foreach ($types as $i => $t) {
-   $u = "bm$i";
-   $p = $u;
-   if ($uid = addUser($u, $p, $t)) {
-    $ehandles[$t] = new Expense($uid);
-    $ehandles[$t]->addBenchmarkTarget($t, $datasource_name, $lastvaluesurl, $u);
-   }
-   else {
-    trigger_error("addUser failed ($u, $p, $t)", E_USER_ERROR);
-   }
-  }
+  global $ehandles, $types, $indexes, $DB_CONFIG, $DEBUG;
 
   $years = array(2001, 2006, 2012, 2016);
   // $response = getpx($params);
   $response = http_get($lastvaluesurl);
+  // echo "$lastvaluesurl\n$response\n";
   if ($DEBUG) {
    echo "\n$response\n";
   }
@@ -125,6 +148,7 @@
 
   $base = array();
   foreach ($rows as $row) {
+   # echo $row;
    $csv = str_getcsv($row, "\t");
    # var_dump($csv);
    if (count($csv) < 2) {
@@ -133,7 +157,8 @@
    elseif (preg_match('/^A(\d{2})(\d+)\s+(.*?)$/', $csv[0], $match)) {
     $cat = $match[1];
     $sub = $match[2];
-    $desc = utf8_encode($match[3]);
+    $desc = mb_convert_encoding($match[3], 'UTF-8', 'ISO-8859-1');
+    # $desc = $match[3];
     // tietoliikenne on hassusti numeroitu!
     if ($cat == 8) {
      $sub -= 10;
@@ -141,6 +166,9 @@
     // koulutus on hassusti numeroitu!
     elseif (($cat == 10) && ($sub == 12)) {
      $sub = 2;
+    }
+    elseif (($cat == 10) && ($sub == 13)) {
+     $sub = 5;
     }
     elseif (($cat == 10) && ($sub == 14)) {
      $sub = 5;
@@ -196,6 +224,112 @@
     }
    }
    # var_dump($csv);
+  }
+ }
+
+ function getNewBase($url) {
+  global $ehandles, $types, $reverseTypes, $DEBUG;
+
+  $response = http_get($url);
+  echo "$url\n$response\n";  
+  if ($DEBUG) {
+   echo "\n$response\n";
+  }
+  $rows = explode("\n", $response);
+  foreach ($rows as $row) {
+   # echo $row;
+   $csv = str_getcsv($row, "\t");
+   # var_dump($csv);
+   if (count($csv) < 2) {
+    continue;
+   }
+   if ($csv[0] == 'Vuosi') {
+    continue;
+   }
+   if (!isset($reverseTypes[$csv[2]])) {
+    echo "No type for $csv[2]!\n";
+    continue;
+   }
+   elseif (preg_match('/^(\d{2})\.?(\d*)\s+(.*?)$/', $csv[1], $match)) {
+    $cat = $match[1];
+    $sub = $match[2];
+    if (($cat == 2) && ($sub == 2)) {
+     $sub = 1; // alkoholin valmistuspalvelut uusi alakategoria
+    }
+    elseif (($cat == 2) && ($sub == 3)) {
+     $sub = 2; // tupakka vanhalle paikalle
+    }
+    elseif (($cat == 4) && ($sub == 2)) {
+     $sub = 1; // laskennalliset vuokrat vuokra-asumiseen
+    }
+    elseif (($cat == 4) && ($sub == 6)) {
+     $sub = 2; // omistusasuminen vanhalle paikalle
+    }
+    elseif (($cat == 6) && ($sub == 4)) {
+     $sub = 2; // muut terveyspalvelut avohoitopalveluihin
+    }
+    elseif (($cat == 7) && ($sub == 4)) {
+     $sub = 3; // tavaroiden kuljetuspalvelut kuljetuspalveluihin
+    }
+    elseif (($cat == 8) && ($sub == 1)) {
+     $cat = "09"; // informaatio- ja viestintätekniset laitteet
+     $sub = 1;
+    }
+    elseif (($cat == 8) && ($sub == 2)) {
+     $cat = "09"; // ohjelmistot pl- pelit
+     $sub = 1;
+    }
+    elseif (($cat == 9) && ($sub == 1)) {
+     $sub = 2; // vapaa-ajan kestokulutustavarat
+    }
+    elseif (($cat == 9) && ($sub == 2)) {
+     $sub = 3; // muut vapaa-ajan tuotteet
+    }
+    elseif (($cat == 9) && ($sub == 6)) {
+     $sub = 4; // kulttuuri- ja vapaa-ajan palvelut yhdessä
+    }
+    elseif (($cat == 9) && ($sub == 7)) {
+     $sub = 5; // kirjat ja lehdet
+    }
+    elseif (($cat == 9) && ($sub == 8)) {
+     $sub = 6; // valmismatkat
+    }
+    elseif (($cat == 12) && ($sub == 1)) {
+     $sub = 5; // vakuutukset
+    }
+    elseif (($cat == 12) && ($sub == 2)) {
+     $sub = 6; // rahoituspalvelut
+    }
+    elseif (($cat == 13) && ($sub == 1)) {
+     $cat = 12; // henkilökohtainen hygienia
+    }
+    elseif (($cat == 13) && ($sub == 2)) {
+      $cat = 12; // henkilökohtaiset tavarat
+      $sub = 3;
+    }
+    elseif (($cat == 13) && ($sub == 3)) {
+     $cat = 12; // sosiaaliturva
+     $sub = 4;
+    }
+    elseif (($cat == 13) && ($sub == 9)) {
+     $cat = 12; // muut palvelut
+     $sub = 7;
+    }
+    elseif ($cat == 99) {
+     $cat = 12; // kulutusmenojen ulkopuoliset erät
+     $sub = 9;
+    }
+    $desc = mb_convert_encoding($match[3], 'UTF-8', 'ISO-8859-1');
+    $y = $csv[0];
+    $t = $types[$reverseTypes[$csv[2]]];
+    $value = $csv[3];
+    if ($y && $t && is_numeric($value)) {
+      insertIndexed($ehandles[$t], "$cat.$sub", "$desc [$t]", $value/12, $y);
+    }
+    else {
+     # echo "Can't process row '$row': [$y, $t, $value]\n";
+    }
+   }
   }
  }
 
@@ -424,6 +558,12 @@
    // kulutustutkimus 2016
    $baseindex = getYearIndex($y, $type);
    $ystart = 2016;
+   $yend = 2021;
+  }
+  elseif ($y == 2022) {
+   // kulutustutkimus 2022
+   $baseindex = getYearIndex($y, $type);
+   $ystart = 2022;
    $yend = date('Y');
   }
   elseif ($y == 2009) {
@@ -479,6 +619,7 @@
                      'currency' => sprintf('I%02d', ($iy-2000)),
                      'type' => "$type",
                      'prod' => $prodstr);
+     # print_r($values);
      if ($handle->addProduct($values)) {
       # var_dump($values);
      }
@@ -552,22 +693,22 @@
       $keyname = 'Ajoneuvon hankinta';
      }
      elseif ($catid == "8") {
-      $keyname = utf8_decode('VIESTINTÄ');
+      $keyname = mb_convert_encoding('VIESTINTÄ', 'ISO-8859-1', 'UTF-8');
      }
      elseif ($catid == "9") {
-      $keyname = utf8_decode('KULTTUURI JA VAPAA-AIKA');
+      $keyname = 'KULTTUURI JA VAPAA-AIKA';
      }
      elseif ($catid == "10") {
-      $keyname = utf8_decode('KOULUTUS');
+      $keyname = 'KOULUTUS';
      }
      elseif ($catid == "11") {
-      $keyname = utf8_decode('RAVINTOLAT JA HOTELLIT');
+      $keyname = 'RAVINTOLAT JA HOTELLIT';
      }
      elseif ($catid == "12") {
-      $keyname = utf8_decode('MUUT TAVARAT JA PALVELUT');
+      $keyname = 'MUUT TAVARAT JA PALVELUT';
      }
      else {
-      $keyname = utf8_decode($cc->getSubName($subid, 'fi'));
+      $keyname = mb_convert_encoding($cc->getSubName($subid, 'fi'), 'ISO-8859-1', 'UTF-8');
      }
      for ($y=2000; $y<=2004; $y++) {
       $indexes[$y] = $tempindex["$y-KULUTTAJAHINTAINDEKSI"];
