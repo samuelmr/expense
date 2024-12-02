@@ -19,7 +19,7 @@
       }
       $subs = $cat->getSubs();
       for ($j=0; $j<count($subs); $j++) {
-	$sub =& $subs[$j];
+        $sub =& $subs[$j];
         # $text = (($lang == 'fi') ? $sub->nameFi : $sub->nameEn);
         $text = $cc->getSubName($sub->id, $lang);
         $string .= "<option value=\"".htmlentities($sub->id)."\"".
@@ -644,19 +644,19 @@ function insertform(&$cc, &$query) {
         elseif ($allmissed && ($atot || $btot)) {
           $allmissed = FALSE;
         }
-	$ratio = ($btot != 0) ? abs($diff/$btot) : 0;
-	if ($ratio > 25) {
-	  $ratio = 25;
-	}
-	$h = ($diff < 0) ? 120 : 0;
-	$s = (75 + $ratio).'%';
-	$l = (100 - 2.5 * $ratio).'%';
-	$a = 0.5;
-	$style = ' style="background-color: hsla('.$h.','.$s.','.$l.','.$a.');"';
+        $ratio = ($btot != 0) ? abs($diff/$btot) : 0;
+        if ($ratio > 25) {
+          $ratio = 25;
+        }
+        $h = ($diff < 0) ? 120 : 0;
+        $s = (75 + $ratio).'%';
+        $l = (100 - 2.5 * $ratio).'%';
+        $a = 0.5;
+        $style = ' style="background-color: hsla('.$h.','.$s.','.$l.','.$a.');"';
         $trow .= "<td class=\"month $plusminus\" headers=\"by$y bm$m\"$style>".
            "<a href=\"$link\" title=\"$title\">".
            locale_format($diff).
-	   "</a></td>";
+           "</a></td>";
       }
       $attrs['from'] = mktime(0, 0, 0, 1, 1, $y);
       $attrs['to'] = mktime(0, 0, 0, 1, 1, $y+1)-1;
@@ -1082,7 +1082,7 @@ EOH;
       foreach($columns as $id => $data) {
         if (!isset($tmpdata[$id][2])) {
           $tmpdata[$id][2] = "";
-	}
+        }
         $values .= sprintf(", %.2f", $tmpdata[$id][2]);
       }
       $values .= "]);\n";
@@ -1235,23 +1235,23 @@ EOF;
       $cats = array();
       while ($row = db_fetch_row($prods)) {
         if ($row['cost']) {
-	  $cat = substr($row['type'], 0, 2);
+          $cat = substr($row['type'], 0, 2);
           $values = array(
-	    'date' => $datestring,
-	    'c' => intval($cat),
+            'date' => $datestring,
+            'c' => intval($cat),
             'category' => $cc->getCatName($cat, $query['lang']),
-	    'cost' => floatval(sprintf("%.2f", $row['cost']))
+            'cost' => floatval(sprintf("%.2f", $row['cost']))
           );
-	  if ($level != 'cat') {
-	    $values['t'] = floatval($row['type']);
-	    $values['type'] = $cc->getSubName($row['type'], $query['lang']);
-	  }
-	  $cats[] = $values;
-	}
+          if ($level != 'cat') {
+            $values['t'] = floatval($row['type']);
+            $values['type'] = $cc->getSubName($row['type'], $query['lang']);
+          }
+          $cats[] = $values;
+        }
       }
       if (count($cats)) {
         echo ($started ? ',' : '').json_encode($cats);
-	$started = true;
+        $started = true;
       }
     }
     echo ']';
@@ -1266,7 +1266,7 @@ EOF;
     if (($query['to'] - $query['from']) > ($CONFIG['maxdays'] * $daysecs)) {
       printf("<!-- ".htmlentities($LOCALE['timeline_max'])." -->\n",
              floor(($query['to'] - $query['from']) / $daysecs) + 1,
-	     $CONFIG['maxdays']);
+             $CONFIG['maxdays']);
 
       return;
     }
@@ -1274,7 +1274,7 @@ EOF;
             ($CONFIG['mindays'] * $daysecs)) {
       printf("<!-- ".htmlentities($LOCALE['timeline_min'])." -->\n",
              floor(($query['to'] - $query['from']) / $daysecs) + 1,
-	     $CONFIG['mindays']);
+             $CONFIG['mindays']);
       return;
     }
 
@@ -1327,16 +1327,16 @@ EOF;
         $h = abs($sum[$sdate]) * $h_unit;
         $cost = sprintf('%.2f&nbsp;&euro;', $sum[$sdate]);
         if (($sum[$sdate]/$h_diff) < 0.25) {
-  	  $src = $CONFIG['ver_25'];
+            $src = $CONFIG['ver_25'];
         }
         elseif (($sum[$sdate]/$h_diff) < 0.50) {
-  	  $src = $CONFIG['ver_50'];
+            $src = $CONFIG['ver_50'];
         }
         elseif (($sum[$sdate]/$h_diff) < 0.75) {
-  	 $src = $CONFIG['ver_75'];
+           $src = $CONFIG['ver_75'];
         }
         else {
-  	  $src = $CONFIG['ver_100'];
+            $src = $CONFIG['ver_100'];
         }
         $class = "img";
       }
