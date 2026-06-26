@@ -80,6 +80,11 @@ fieldset {
  vertical-align: middle;
 }
 
+#benchmark fieldset {
+ display: inline-block;
+ padding: 0.25em;
+}
+
 #insertfs {
  padding: 1em;
 }
@@ -196,7 +201,7 @@ table#summary tbody tr td, table#details tbody tr td, table#summary tfoot tr td,
  padding: 0 0.2em;
 }
 
-table#details thead tr th.desc, table#details tbody tr td.desc, table#details tfoot tr th.desc{
+table#details thead tr th.desc, table#details tbody tr td.desc, table#details tfoot tr th.desc {
  border-color: #EEE;
  border-style: solid;
  border-width: 0 0.1em 0.1em 0.1em;
@@ -240,6 +245,26 @@ table#timeline tbody tr td {
  font-family: "Courier New",Courier,monospace;
  font-size: 80%;
  vertical-align: bottom;
+}
+
+table.benchmark caption{
+ font-size: large;
+ font-weight: bold;
+}
+
+table.benchmark th, table.benchmark td, table.benchmark tr.total td {
+ background-color: #FFF;
+ border: 0px solid transparent;
+ padding-left: 0.5em;
+ padding-right: 0.5em;
+}
+
+table.benchmark th {
+ color: #000;
+}
+
+table.benchmark tbody th, table.benchmark tbody td {
+ font-weight: normal;
 }
 
 td.cost, td.month, td.perc, td.year {
