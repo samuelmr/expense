@@ -789,7 +789,7 @@ function insertform(&$cc, &$query) {
     }
     echo "   <h3>$span: <span title=\"".htmlentities($LOCALE['owntot'])."\">".
          locale_format($total, '&euro;').
-         "</span> &minus;  <span title=\"".htmlentities($LOCALE['avgtot'])."\">".
+         "</span> &minus;  <span title=\"".htmlentities($bmname)."\">".
          locale_format($bmark, '&euro;').
          "</span> = <span class=\"$plusminus\">".
          locale_format($diff, '&euro;').
@@ -870,7 +870,7 @@ function insertform(&$cc, &$query) {
     echo "  </div>\n";
   }
 
-  function benchmarktable(&$e, &$b, &$cc, &$query, $id) {
+  function benchmarktable(&$e, &$b, &$cc, &$query, $targets) {
     $LOCALE = $GLOBALS['LOCALE'];
     $CONFIG = $GLOBALS['CONFIG'];
 
@@ -880,11 +880,24 @@ function insertform(&$cc, &$query) {
     $total_perc = 0;
     // copy; may be modified
     $attrs = $query;
+    $attrs['view'] = 'benchmark';
     $span = date('j.n.Y', $attrs['from'])." - ".date('j.n.Y', $attrs['to']);
     # $urlattrs = attrs2url($attrs);
     $total = $e->getTotal($attrs);
     $battrs = $attrs;
-    if (($attrs['bmto'] != 'lta') && ($attrs['bmto'] != 'lta')) {
+    if ($attrs['bmto'] == 'prevy') {
+      $battrs['from'] = strtotime("-1 year", $battrs['from']);
+      $battrs['to'] = strtotime(" -1 year", $battrs['to']);
+      $bmname = $LOCALE['prevy'];
+    }
+    elseif ($attrs['bmto'] == 'lta') {
+      $start_time = $e->getFirstDate();
+      $battrs['from'] = $start_time;
+      $battrs['to'] = time();
+      $bmname = $LOCALE['lta'];
+      $lta_ratio = ($attrs['to'] - $attrs['from']) / (time() - $start_time);
+    }
+    else {
       $battrs['prod'] = '';
     }
     $bmark = $b->getTotal($battrs);
@@ -904,24 +917,67 @@ function insertform(&$cc, &$query) {
     $attrs = $query;
     $LOCALE['diff'] = 'Ero';
     $attrs['view'] = 'details';
-    echo "  <table class=\"benchmark\" id=\"table$id\">\n";
-    echo "   <caption>".htmlentities($bmname)."</caption>\n";
-    echo "   <tr><th>".htmlentities($LOCALE['cat'])."</th><th>".
-         htmlentities(ucfirst($LOCALE['owntot']))."</th><th>".htmlentities(ucfirst($LOCALE['avgtot']))."</th><th>".htmlentities(ucfirst($LOCALE['diff']))."</th></tr>\n";
-    $endrow = "   <tr class=\"total\"><th>".htmlentities(ucfirst($LOCALE['total']))."</th><td>".
+    echo "  <div id=\"benchmark\">\n";
+    echo "   <form method=\"get\" action=\"./\">\n";
+    echo "    <fieldset id=\"bmtarget\">\n";
+    echo "     ".attrs2form($cattrs, 'bmform')."\n";
+    echo "     <label id=\"bmtolabel\" for=\"bmto\">".
+         htmlentities($LOCALE['benchmark_title']).
+         "</label>\n";
+    echo "     <select name=\"bmto\" id=\"bmto\">\n";
+    echo "      <option value=\"lta\"".
+            ($attrs['bmto'] == 'lta' ? ' selected="selected"' : '').
+            ">".htmlentities($LOCALE['lta'], ENT_QUOTES, 'UTF-8')."</option>\n";
+    echo "      <option value=\"prevy\"".
+            ($attrs['bmto'] == 'prevy' ? ' selected="selected"' : '').
+            ">".htmlentities($LOCALE['prevy'], ENT_QUOTES, 'UTF-8')."</option>\n";
+    if ($targets) {
+      foreach ($targets as $targ) {
+       echo "      <option value=\"$targ[id]\"".
+            ($targ['id'] == $attrs['bmto'] ? ' selected="selected"' : '').
+            ">".htmlentities($targ['config']['title'], ENT_QUOTES, 'UTF-8')."</option>\n";
+      }
+    }
+    echo "     </select>\n";
+    echo "     ".form_input('', htmlentities($LOCALE['show']), 'submit')."\n";
+    echo "    </fieldset>\n";
+    echo "   </form>\n";
+    $span = date('j.n.Y', $attrs['from'])."&ndash;".date('j.n.Y', $attrs['to']);
+    echo "   <table class=\"benchmark\">\n";
+    echo "    <caption>".htmlentities($bmname)." $span</caption>\n";
+    echo "    <thead>\n";
+    echo "    <tr><th class=\"type\">".htmlentities($LOCALE['cat'])."</th><th>".
+         htmlentities(ucfirst($LOCALE['owntot']))."</th><th class=\"type\">".
+         htmlentities(ucfirst($LOCALE['avgtot']))."</th><th class=\"type\">".
+         htmlentities(ucfirst($LOCALE['diff']))."</th></tr>\n";
+    echo "    </thead>\n";
+    echo "    <tbody>\n";
+    $endrow = "     <tr class=\"total\"><th class=\"type\">".htmlentities(ucfirst($LOCALE['total']))."</th><td class=\"cost\">".
               locale_format($total).
-              "</td><td>".
+              "</td><td class=\"cost\">".
               locale_format($bmark).
-              "</td><td class=\"$plusminus\">".
+              "</td><td class=\"cost $plusminus\">".
               locale_format($diff).
               "</td></tr>\n";
     foreach($cats as $catid => $cat) {
       $attrs['type'] = $cat->id;
       $tota = $e->getTotal($attrs);
       $battrs = $attrs;
-      if (($attrs['bmto'] != 'lta') && ($attrs['bmto'] != 'lta')) {
-        $battrs['prod'] = '';
-      }
+    if ($attrs['bmto'] == 'prevy') {
+      $battrs['from'] = strtotime("-1 year", $battrs['from']);
+      $battrs['to'] = strtotime(" -1 year", $battrs['to']);
+      $bmname = $LOCALE['prevy'];
+    }
+    elseif ($attrs['bmto'] == 'lta') {
+      $start_time = $e->getFirstDate();
+      $battrs['from'] = $start_time;
+      $battrs['to'] = time();
+      $bmname = $LOCALE['lta'];
+      $lta_ratio = ($attrs['to'] - $attrs['from']) / (time() - $start_time);
+    }
+    else {
+      $battrs['prod'] = '';
+    }
       $totb = $b->getTotal($battrs);
       $diff = sprintf('%0.2f', $tota - $totb);
       # $diffprc = ($totb ? (sprintf('%d', 100*($tota - $totb)/$totb)) : '0.00');
@@ -933,52 +989,29 @@ function insertform(&$cc, &$query) {
       $catn = $cc->getCatName($cat->id, $attrs['lang']);
       # $catn = iconv(iconv_get_encoding('input_encoding'), 'UTF-8', $catn);
       $color = str_replace('#', '', $cat->color);
+/*
       $sa = sprintf('%0.2f', $u * $tota);
       $sb = sprintf('%0.2f', $u * $totb);
       $tota = sprintf('%0.2f', $tota);
       $totb = sprintf('%0.2f', $totb);
-      $la = urlencode($LOCALE['owntot'].": $tota ")."%E2%82%AC".
-            urlencode(" ($diffprc %)");
-      $lb = urlencode($LOCALE['avgtot']).":%20$totb%20%E2%82%AC";
-      $lm = round($max);
-      $oleg = str_pad(urlencode($LOCALE['owntot'].": $tota ")."%E2%82%AC".
-                      " ($diffprc%20%25)", 45, '+', STR_PAD_RIGHT).".";
-      $aleg = str_pad(urlencode($LOCALE['avgtot'].": $totb ")."%E2%82%AC", 30);
-      $apad = (($tota/$max) <= 0.75) ? '-1' : 1;
-      $bpad = (($totb/$max) <= 0.75) ? '-1' : 1;
-      $imgsrc = "https://chart.apis.google.com/chart?chs={$w}x{$h}".
-                "&amp;cht=bhg".
-                "&amp;chbh=$bh".
-                "&amp;chco=000099,666666&amp;chts=000000,10".
-                "&amp;chf=c,lg,0,$color,1,FFFFFF,0.5|bg,s,FFFFFF".
-                // axis label korvattu chm:lla
-                # "&amp;chxt=x,x".
-                # "&amp;chxs=1,000099,9,$apad|2,666666,9,$bpad".
-                # "&amp;chxr=0,0,$max|1,0,$max".
-                # "&amp;chxp=0,$tota|1,$totb|2,0".
-                # "&amp;chxl=0:|$la|1:|$lb|2:|$diffprc%20%25".
-                // title erikseen tekstina
-                # "&amp;chtt=".urlencode($catn).
-                "&amp;chm=t+$la,000099,0,1,9,0|t+$lb,333333,1,1,9,0".
-                # "&amp;chdl=$oleg|$aleg".
-                // bugi chartsissa: chm ei toimi, jos kummassakin joukossa
-                // on vain yksi datapoint
-                # "&amp;chd=t:0,$sa|0,$sb".
-                "&amp;chd=t:$sa|$sb".
-                "";
-      $urlattrs = attrs2url($attrs);
-/*
-      echo "   <h4><a href=\"./?$urlattrs\">".htmlentities($catn)."</a></h4>\n".
-           "   <p title=\"$tota - $totb = $diff\"><a href=\"./?$urlattrs\">".
-           "<img src=\"$imgsrc\" class=\"bmark\" width=\"$w\" height=\"$h\"".
-           " al=t\"$LOCALE[owntot]: $tota, $LOCALE[avgtot]: $totb\" /></a>".
-           "</p>\n";
 */
+      $sa = locale_format($u * $tota);
+      $sb = locale_format($u * $totb);
+      $tota = locale_format($tota);
+      $totb = locale_format($totb);
+      $diff = locale_format($diff);
+
+      $urlattrs = attrs2url($attrs);
       $catid = str_replace('.', '-', $cat->id);
-      echo "   <tr><th class=\"cat$catid\">".htmlentities($catn)."</th><td>$tota</td><td>$totb</td><td class=\"$plusminus\">$diff</td></tr>\n";
+      echo "     <tr><th class=\"type cat$catid\">".htmlentities($catn)."</th><td class=\"cost\">$tota</td><td class=\"cost\">$totb</td><td class=\"cost $plusminus\">$diff</td></tr>\n";
     }
+    echo "    </tbody>\n";
+    echo "    <tfoot>\n";
     echo $endrow;
-    echo "  </table>\n";
+    echo "    </tfoot>\n";
+    echo "   </table>\n";
+    echo "  </div>\n";
+
   }
 
   function plot($e, $cc, $query) {
@@ -1426,22 +1459,25 @@ EOF;
     # $attrs['view'] = 'excel';
     # $urlattrs_excel = attrs2url($attrs);
     # $text_excel = htmlentities($LOCALE['excel']);
-    $attrs['view'] = 'insert';
-    $urlattrs_insert = attrs2url($attrs);
-    $text_benchmark = htmlentities($LOCALE['benchmark']);
+    # $attrs['view'] = 'insert';
+    # $urlattrs_insert = attrs2url($attrs);
     $text_summary = htmlentities($LOCALE['summary']);
     $text_details = htmlentities($LOCALE['details']);
     $text_plot = htmlentities($LOCALE['plot']);
-    $text_insert = htmlentities($LOCALE['insert']);
-    $text_logout = htmlentities($LOCALE['logout']);
-    $logoutmsg = urlencode($LOCALE['logoutmsg']);
-    $returnmsg = urlencode($LOCALE['returnmsg']);
+    $text_benchmark = htmlentities($LOCALE['benchmark']);
+    # $text_insert = htmlentities($LOCALE['insert']);
+    # $text_logout = htmlentities($LOCALE['logout']);
+    # $logoutmsg = urlencode($LOCALE['logoutmsg']);
+    # $returnmsg = urlencode($LOCALE['returnmsg']);
     echo <<<EOL
   <ul id="tabs">
    <li id="summarylink"><a href="#summary">$text_summary</a></li>
    <li id="detailslink"><a href="#details">$text_details</a></li>
    <li id="plotlink"><a href="#plot">$text_plot</a></li>
+<!--
    <li id="benchmarkimageslink"><a href="#benchmarkimages">$text_benchmark</a></li>
+-->
+   <li id="benchmarklink"><a href="#benchmark">$text_benchmark</a></li>
   </ul>
 
 EOL;
@@ -1509,14 +1545,17 @@ EOL;
     $divs = array('summary' => 'summary',
                   'details' => 'details',
                   'plot' => 'plot',
-                  'benchmark' => 'benchmarkimages');
+                  'benchmark' => 'benchmark');
     if (!isset($divs[$query['view']])) {
-     return false;
+     // return false;
     }
     $tab = $divs[$query['view']];
     $styles = '';
     foreach ($divs as $view => $div) {
      $display = ($query['view'] == $view) ? 'block' : 'none';
+     if ($query['view'] == 'insert' && $view == 'details') {
+      $display = 'block';
+     }
      $styles .= "#$div{display:$display}";
     }
     if ($query['view'] == 'benchmark') {
@@ -1527,7 +1566,6 @@ EOL;
     }
     return <<<EOS
   <script type="text/javascript">
-   var chart;
    var ss = document.getElementById('screenstyle');
    var st = document.createElement('style');
    st.type = 'text/css';
