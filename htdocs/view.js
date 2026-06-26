@@ -7,6 +7,8 @@ var selectedType;
 var initPlot;
 var h1, h2;
 
+var chart = null;
+
 function inArray(arr, key) {
   var i;
   for (i=0; i<arr.length; i++) {
@@ -154,6 +156,10 @@ function replaceSelectList(id) {
     var c = optg[i].getElementsByTagName('option');
     var o = document.createElement('option');
     var id = new String(i + 1);
+    if (id == 14){
+      // special handling for cat 99
+	id = 99;
+    }
     if (id.length < 2) {
       id = '0' + id + '';
     }
@@ -399,6 +405,7 @@ function init() {
    }
   }
   if (document.getElementById('insertfs')) {
+    show('details');
     var b;
     var c;
     var inputs = new Array();
@@ -512,10 +519,10 @@ function show(id) {
   }
   var styles = '';
   var link;
-  var divs = ['summary', 'details', 'benchmarkimages', 'plot'];
+  var divs = ['summary', 'details', 'benchmark', 'plot'];
   for (var i=0; i<divs.length; i++) {
     var dis = (divs[i] == id) ? 'block' : 'none';
-    styles += '#' + divs[i] + '{display:' + dis + '}';
+    styles += '#' + divs[i] + '{display:' + dis + '} ';
     link = document.getElementById(divs[i] + 'link');
     if (link) {
       link.className = '';
@@ -525,11 +532,11 @@ function show(id) {
   if (link) {
     link.className = 'active';
   }
-  if (id != 'benchmarkimages') {
-    styles += '#benchmarkhistory{display:none}#history{display:block}';
+  if (id != 'benchmark') {
+    styles += '#benchmarkhistory{display:none} #history{display:block}';
   }
   else {
-    styles += '#benchmarkhistory{display:block}#history{display:none}';
+    styles += '#benchmarkhistory{display:block} #history{display:none}';
   }
   if (ds.styleSheet) {
     ds.styleSheet.cssText = styles;
