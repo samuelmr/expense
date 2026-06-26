@@ -26,7 +26,7 @@
 
   $QUERY = getQuery($_REQUEST);
   $views = array('summary' => 'summary', 'details' => 'details',
-                 'benchmarkimages' => 'benchmark', 'plot' => 'plot');
+                 'benchmark' => 'benchmark', 'plot' => 'plot');
   if (isset($_COOKIE['tab']) && in_array($QUERY['view'], $views)) {
     if (isset($_REQUEST['init'])) {
       $QUERY['view'] = 'summary';
@@ -122,8 +122,8 @@ EOS;
   #   trigger_error($bmtargets[$i]['config']['title'], E_USER_NOTICE);
   # }
 
-  $headers .= prevnextlinks($QUERY, $e);
   $headers .= showhidedivs($QUERY);
+  $headers .= prevnextlinks($QUERY, $e);
   echo header_html5($LOCALE['expense'], $headers, $dtdtype, $QUERY['lang']);
 
   $_SESSION['start'] = isset($_SESSION['start']) ? $_SESSION['start'] :
@@ -270,8 +270,8 @@ EOS;
       $query['type'] = NULL;
       $query['lang'] = $QUERY['lang'];
       $query['view'] = $QUERY['view'];
-      benchmark($e, $b, $cc, $query, $bmtargets);
-      # benchmarktable($e, $b, $cc, $query, $QUERY['bmto']);
+      # benchmark($e, $b, $cc, $query, $bmtargets);
+      benchmarktable($e, $b, $cc, $query, $bmtargets);
       # foreach ($bmtargets as $targ) {
       #  $b = new Expense($targ['id']);
       #  benchmarktable($e, $b, $cc, $query, $targ['id']);
