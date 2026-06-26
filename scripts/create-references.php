@@ -39,24 +39,40 @@
 
  # https://statfin.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__khi/statfin_khi_pxt_15b5.px/
  # 15b5 -- Kuluttajahintaindeksi (2025=100), kuukausitiedot, 1995M01-2026M04
- $index2025Url = 'https://statfin.stat.fi/PxWeb/sq/595e46b4-62f1-4037-85b6-2816cb98d7c7';
+ $index2025Url = 'https://statfin.stat.fi/PxWeb/sq/f39ad62f-66a6-42be-a2fe-510788a90372';
+ // https://statfin.stat.fi/PxWeb/sq/595e46b4-62f1-4037-85b6-2816cb98d7c7';
  // https://statfin.stat.fi/PxWeb/sq/4499f6a3-60b2-40af-904d-2e24d3ae44da';
 
  $jsonstat = array();
+ # echo "Getting 2000\n";
  $jsonstat["2000"] = JSONstat($index2000Url);
+ # echo "Getting 2005\n";
  $jsonstat["2005"] = JSONstat($index2005Url);
+ # echo "Getting 2010\n";
  $jsonstat["2010"] = JSONstat($index2010Url);
+ # echo "Getting 2015\n";
  $jsonstat["2015"] = JSONstat($index2015Url);
+ # echo "Getting 2025\n";
  $jsonstat["2025"] = JSONstat($index2025Url);
 
+ // 001 -- Kotitalouksien kulutusmenot kotitaloustyypin mukaan 1985-2016
+ // https://statfin.stat.fi/PxWeb/pxweb/fi/StatFin_Passiivi/StatFin_Passiivi__ktutk/statfinpas_ktutk_pxt_001_201600.px/
  # $lastvaluesurl = 'https://statfin.stat.fi/PXWeb/sq/8712b451-2929-4a0a-a645-5e257877c542';
- $lastvaluesurl = 'https://statfin.stat.fi:443/PxWeb/sq/dfaf9e15-70de-4216-bc58-02323e9e23e9';
+ $lastvaluesurl = 'https://statfin.stat.fi/PxWeb/sq/c951885e-d0a5-41db-b160-779f0ca36147';
+ // https://statfin.stat.fi/PxWeb/pxweb/fi/StatFin_Passiivi/StatFin_Passiivi__ktutk/statfinpas_ktutk_pxt_001_201600.px/';
+ // 'https://statfin.stat.fi:443/PxWeb/sq/dfaf9e15-70de-4216-bc58-02323e9e23e9';
+
  # $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/b596762a-208b-4d44-97fb-5ac0b3ad01d0';
  # $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/8335445e-1088-4eca-87ed-59b2dd15252f';
- $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/ab325ae0-3a68-46f7-9f20-d5f9a4b5efd4';
+ # $newestvaluesurl = 'https://pxdata.stat.fi:443/PxWeb/sq/ab325ae0-3a68-46f7-9f20-d5f9a4b5efd4';
 
+ // 14ph -- Kotitalouksien kulutusmenot kotitaloustyypin mukaan, 2012-2022
+ // https://pxdata.stat.fi/PxWeb/pxweb/fi/StatFin/StatFin__ktutk/14ph.px/
  # $updatedvaluesurl = 'https://pxdata.stat.fi/PxWeb/sq/35f0e8d1-aa9e-491a-b68c-465ee12d674d';
- $updatedvaluesurl = 'https://statfin.stat.fi/PxWeb/sq/8a3885c0-79f4-4971-8657-f3f5a20b3a2c';
+ $updatedvaluesurl = 'https://pxdata.stat.fi/PxWeb/sq/c38456cb-aa73-4958-b888-e3904e086605';
+ // https://pxdata.stat.fi/PxWeb/sq/8770acf5-7871-47b7-8185-476692eadfce';
+ // https://pxdata.stat.fi/PxWeb/sq/6fc2fc06-c133-4652-864d-92ca0bc4123f';
+ // https://statfin.stat.fi/PxWeb/sq/8a3885c0-79f4-4971-8657-f3f5a20b3a2c';
 
  # echo json_encode($jsonstat);
  # exit();
@@ -79,9 +95,12 @@ $reverseTypes = array(
   "Kaikki kotitaloudet" => 0
 );
 
+ # echo "Getting $lastvaluesurl\n";
  $ehandles = initHandles($lastvaluesurl);
  getBase($lastvaluesurl);
- getNewBase($newestvaluesurl);
+ # echo "Getting $newestvaluesurl\n";
+ # getNewBase($newestvaluesurl);
+ getNewBase($updatedvaluesurl);
  getBudgets();
 
  function initHandles($lastvaluesurl) {
@@ -106,7 +125,11 @@ $reverseTypes = array(
   global $jsonstat, $DEBUG;
   $varname = 'pisteluku';
   # echo "Getting index for $y $m $type\n";
-  if ($type == '10.1') {
+  if ($type == '02.4') {
+    // huumausaineita ei tilastoida
+    return false;
+  }
+  elseif ($type == '10.1') {
    // esiasteen koulutukselle ei ole indeksiarvoa,
    // kaytetaan ylemmän keskiasteen indeksiä
    $type = "10.2";
@@ -248,7 +271,12 @@ $reverseTypes = array(
    $varname = 'ip_khi';
   }
   # echo "[$y-$m: $type - $varname]\n";
-  $query = array('Kuukausi' => sprintf('%dM%02d', $y, $m), 'Hyödyke' => $type, 'Tiedot' => $varname);
+  if ($iy < 2025) {
+    $query = array('Kuukausi' => sprintf('%dM%02d', $y, $m), 'Hyödyke' => $type, 'Tiedot' => $varname);
+  }
+  else {
+    $query = array('timeperiod_m' => sprintf('%dM%02d', $y, $m), 'coicop_46_20231201' => $type, 'contentscode' => $varname);
+  }
   $value = getValue($jsonstat[$iy], $query);
   # echo "[$y-$m: $type - $varname] => $value\n";
   return $value;
@@ -813,7 +841,7 @@ $reverseTypes = array(
      $values = array('date' => $date,
                      'cost' => $indexed,
                      'other' => $value,
-                     'currency' => sprintf('I%02d', ($iy-2000)),
+                     'currency' => sprintf('I%02d', ($y-2000)),
                      'type' => "$type",
                      'prod' => $prodstr);
      # print_r($values);
