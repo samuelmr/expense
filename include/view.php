@@ -138,7 +138,7 @@
     while ($row = db_fetch_row($prods)) {
       flush();
       $i++;
-      $date = date('d.m.Y', strtotime($row['date']));
+      $date = date('j.n.Y', strtotime($row['date']));
       $attrs = $query; // new copy
       $attrs['from'] = strtotime($row['date']);
       $attrs['to'] = strtotime($row['date']);
@@ -270,13 +270,13 @@
     echo form_input('prod', $prod, 'search', 10, 'maxlength="30"', TRUE);
     echo "</fieldset>\n";
     echo "    <fieldset id=\"datefs\">";
-    $from = date('d.m.Y', $query['from']);
+    $from = date('Y-m-d', $query['from']);
     echo "<label for=\"".make_id('from', $from)."\">".
          htmlentities($LOCALE['date']).":</label>";
-    echo form_input('from', $from, 'text', 10, 'maxlength="10"', TRUE);
-    $to = date('d.m.Y', $query['to']);
+    echo form_input('from', $from, 'date', 10, 'maxlength="10"', TRUE);
+    $to = date('Y-m-d', $query['to']);
     echo "<label for=\"".make_id('to', $to)."\">&#8211;</label>";
-    echo form_input('to', $to, 'text', 10, 'maxlength="10"', TRUE);
+    echo form_input('to', $to, 'date', 10, 'maxlength="10"', TRUE);
     echo "</fieldset>\n";
     echo "    <fieldset id=\"submitfs\">";
     echo form_input('', htmlentities($LOCALE['show']), 'submit');
@@ -372,7 +372,7 @@ function insertform(&$cc, &$query) {
     $LOCALE = $GLOBALS['LOCALE'];
     $cost = $query['cost'];
     $currency = $query['currency'];
-    $date = $query['date'];
+    $date = date('Y-m-d', strtotime($query['date']));
     $other = $query['other'];
     $prod = $query['prod'];
     $rate = (($other > 0) ? $cost/$other : '');
@@ -391,7 +391,7 @@ function insertform(&$cc, &$query) {
     echo "    </fieldset>\n";
     echo "    <fieldset id=\"datefs\">";
     echo form_label('date', $date, $LOCALE['date'], 'class="header"');
-    echo form_input('date', $date, 'text', 10, 'maxlength="10" class="date"', TRUE);
+    echo form_input('date', $date, 'date', 10, 'maxlength="10" class="date"', TRUE);
     echo "    </fieldset>\n";
     echo "     <fieldset id=\"otherfs\">";
     echo form_label('other', $other, $LOCALE['other'], 'class="header"');
@@ -1396,7 +1396,7 @@ EOF;
         $src = "../i/.gif";
       }
 
-      $date = date('d.m.y', $i);
+      $date = date('j.n.y', $i);
       $alt = locale_format($cost, '&euro;');
 
       $attrs = $query;
@@ -1586,8 +1586,8 @@ EOS;
   function attrs2url($array) {
     $url = '';
     $count = 0;
-    $array['from'] = isset($array['from']) ? date('d.m.Y', $array['from']) : NULL;
-    $array['to'] = isset($array['to']) ? date('d.m.Y', $array['to']) : NULL;
+    $array['from'] = isset($array['from']) ? date('Y-m-d', $array['from']) : NULL;
+    $array['to'] = isset($array['to']) ? date('Y-m-d', $array['to']) : NULL;
     if (isset($array['type'])) {
       $array['cat'] = (isset($array['cat']) ? $array['cat'] :
                        substr($array['type'], 0, 2));
@@ -1608,8 +1608,8 @@ EOS;
   function attrs2form($array, $form=NULL) {
     $inputs = '';
     $count = 0;
-    $array['from'] = isset($array['from']) ? date('d.m.Y', $array['from']) : NULL;
-    $array['to'] = isset($array['to']) ? date('d.m.Y', $array['to']) : NULL;
+    $array['from'] = isset($array['from']) ? date('Y-m-d', $array['from']) : NULL;
+    $array['to'] = isset($array['to']) ? date('Y-m-d', $array['to']) : NULL;
     if (isset($array['type'])) {
       $array['cat'] = (isset($array['cat']) ? $array['cat'] :
                        substr($array['type'], 0, 2));

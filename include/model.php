@@ -100,7 +100,11 @@
 
   function date2time($date) {
     $time = false;
-    $date_re = '/(\d{1,2})\D(\d{1,2})\D(\d{2,4})/';
+    $date_re_iso = '/(\d{4})-(\d{2})-(\d{2})/';
+    if (preg_match($date_re_iso, $date, $match)) {
+      return strtotime($date);
+    }
+    $date_re_fi = '/(\d{1,2})\D(\d{1,2})\D(\d{2,4})/';
     if (preg_match($date_re, $date, $match)) {
       $d = sprintf('%02d', $match[1]);
       $m = sprintf('%02d', $match[2]);

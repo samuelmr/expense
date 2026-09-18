@@ -224,7 +224,7 @@ EOS;
         $attrs = array('id' => $QUERY['id']);
         $stmt = $e->getProducts($attrs);
         $row = db_fetch_assoc($stmt);
-        $row['date'] = date('d.m.Y', strtotime($row['date']));
+        $row['date'] = date('Y-m-d', strtotime($row['date']));
         $QUERY = array_merge($QUERY, $row);
       }
       printErrors($GLOBALS['ERRORS']);

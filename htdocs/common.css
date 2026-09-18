@@ -267,7 +267,7 @@ table.benchmark tbody th, table.benchmark tbody td {
  font-weight: normal;
 }
 
-td.cost, td.month, td.perc, td.year {
+td.date, td.cost, td.month, td.perc, td.year {
  text-align: right;
 }
 
